@@ -5,35 +5,35 @@ import 'package:mobile/screen/phuhuynh/thong_bao_tab.dart';
 import 'package:mobile/screen/phuhuynh/tre_em_tab.dart';
 import 'home_tab.dart';
 
-class ParentMainScreen extends StatefulWidget {
-  final Map<String, dynamic> user;
+final GlobalKey<ParentMainScreenState> parentMainScreenKey = GlobalKey<ParentMainScreenState>();
 
-  const ParentMainScreen({Key? key, required this.user}) : super(key: key);
+class ParentMainScreen extends StatefulWidget {
+  const ParentMainScreen({Key? key}) : super(key: key);
 
   @override
-  State<ParentMainScreen> createState() => _ParentMainScreenState();
+  State<ParentMainScreen> createState() => ParentMainScreenState();
 }
 
-class _ParentMainScreenState extends State<ParentMainScreen> {
+class ParentMainScreenState extends State<ParentMainScreen> {
   int _selectedIndex = 0;
-  late List<Widget> _screens;
 
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      ParentHomeTab(user: widget.user),
-      ParentChildrenTab(user: widget.user),
-      ParentEventsTab(user: widget.user),
-      ParentNotificationTab(user: widget.user),
-      ParentAccountTab(user: widget.user),
-    ];
+  void navigateToTab(int index) {
+    setState(() => _selectedIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
+    // Khai báo screens trong build method
+    final screens = const [
+      ParentHomeTab(),
+      ParentChildrenScreen(),
+      SuKienScreen(),
+      TabThongBaoScreen(),
+      TabTaiKhoanScreen(),
+    ];
+
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
