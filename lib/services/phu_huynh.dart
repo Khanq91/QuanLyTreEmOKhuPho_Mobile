@@ -171,12 +171,12 @@ class ParentService extends ApiService {
 
   // Đổi mật khẩu & Đăng xuất
   Future<void> doiMatKhau(String matKhauCu, String matKhauMoi) async {
-    return Post('/Mobile/PhuHuynh/DoiMatKhau',
+    return Post('/mobile/Auth/DoiMatKhau',
       {'matKhauCu': matKhauCu, 'matKhauMoi': matKhauMoi},
         (response) {});
   }
 
   Future<void> dangXuat() async {
-    return Post('/Mobile/PhuHuynh/DangXuat', {}, (response) {});
+    return Post('/mobile/Auth/DangXuat', {}, (response) {});
   }
 }

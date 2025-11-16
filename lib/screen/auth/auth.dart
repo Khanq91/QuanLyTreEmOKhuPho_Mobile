@@ -58,19 +58,30 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else if (authProvider.vaiTro == 'Tình nguyện viên') {
         final tnvProvider =
-        Provider.of<TinhNguyenVienProvider>(context, listen: false);
-        // await tnvProvider.loadDashboard();
-        // await tnvProvider.loadThongBao();
+        Provider.of<VolunteerProvider>(context, listen: false);
+        try {
+          await tnvProvider.loadHome();
 
-        if (!mounted) return;
+          if (!mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Chào mừng ${authProvider.hoTen}!'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Chào mừng ${authProvider.hoTen}!'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        } catch (e) {
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Đăng nhập thành công nhưng không thể tải dữ liệu: $e'),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       }
     } else {
       // Show error
@@ -147,7 +158,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
                       labelText: 'Số điện thoại',
-                      hintText: '0703111000',
                       prefixIcon: const Icon(Icons.email_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -176,7 +186,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     onFieldSubmitted: (_) => _login(),
                     decoration: InputDecoration(
                       labelText: 'Mật khẩu',
-                      hintText: '••••••••',
                       prefixIcon: const Icon(Icons.lock_outlined),
                       suffixIcon: IconButton(
                         icon: Icon(

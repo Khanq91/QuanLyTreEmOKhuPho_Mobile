@@ -1,11 +1,11 @@
 import 'dart:io';
+import 'package:mobile/screen/phuhuynh/detailsscreen/xem_anh_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/screen/phuhuynh/xem_anh_screen.dart';
-import '../../models/tab_tai_khoan_ph.dart';
-import '../../providers/phu_huynh.dart';
+import '../../../models/tab_tai_khoan_ph.dart';
+import '../../../providers/phu_huynh.dart';
 
 class ChiTietPhuHuynhScreen extends StatefulWidget {
   final PhuHuynhVoiMoiQuanHe phuHuynh;

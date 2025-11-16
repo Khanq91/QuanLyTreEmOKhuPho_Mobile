@@ -86,17 +86,28 @@ class AuthProvider extends ChangeNotifier {
       return false;
     }
   }
-
   Future<void> logout() async {
-    await _authService.logout();
-    _token = null;
-    _hoTen = null;
-    _vaiTro = null;
-    _userId = null;
-    notifyListeners();
+    try {
+      await _authService.logout();
+      clearAuth();
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+      rethrow;
+    }
   }
 
   void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void clearAuth() {
+    _token = null;
+    _userId = null;
+    _hoTen = null;
+    _vaiTro = null;
+    _isLoading = false;
     _errorMessage = null;
     notifyListeners();
   }

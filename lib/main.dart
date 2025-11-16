@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mobile/providers/auth.dart';
 import 'package:mobile/providers/phu_huynh.dart';
-import 'package:mobile/screen/splash_screen.dart';
+import 'package:mobile/providers/tinh_nguyen_vien.dart';
+import 'package:mobile/screen/other/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
   runApp(const MyApp());
 }
 
@@ -17,12 +20,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => AuthProvider()..initialize(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => PhuHuynhProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()..initialize(),),
+        ChangeNotifierProvider(create: (_) => PhuHuynhProvider(),),
+        ChangeNotifierProvider(create: (_) => VolunteerProvider(),),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, auth, _) {

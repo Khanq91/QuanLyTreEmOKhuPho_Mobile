@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
   // - Nếu chạy trên Emulator Android: dùng 10.0.2.2
@@ -11,7 +12,9 @@ class ApiService {
   // static const String baseUrl = 'http://10.0.2.2:5019/api';
   // static const String baseUrl = 'https://10.0.2.2:44362/api';
   // static const String baseUrl = 'http://10.0.2.2:5035/api';
-  static const String baseUrl = 'http://192.168.1.146:5035/api';
+  // static const String baseUrl = 'http://192.168.1.146:5035/api';
+
+  static final String baseUrl = "${dotenv.env['BASE_URL']!}/api";
 
   final _secureStorage = const FlutterSecureStorage();
   String? _authToken;
@@ -91,20 +94,54 @@ class ApiService {
     return headers;
   }
 
+  // Future<T> _get<T>(
+  //     String endpoint,
+  //     T Function(dynamic) parser,
+  //     ) async {
+  //   try {
+  //     final uri = Uri.parse('$baseUrl$endpoint');
+  //     print('🌐 GET Request: $uri');
+  //     final httpClient = getHttpClient();
+  //
+  //     final request = await httpClient.getUrl(uri);
+  //     // _headers.forEach((key, value) => request.headers.add(key, value));
+  //     final headers = await getHeaders();
+  //     headers.forEach((key, value) => request.headers.add(key, value));
+  //
+  //
+  //     final response = await request.close();
+  //     final responseBody = await response.transform(utf8.decoder).join();
+  //
+  //     print('GET Response Status: ${response.statusCode}');
+  //     if (response.statusCode == 200) {
+  //       return parser(jsonDecode(responseBody));
+  //     } else if (response.statusCode == 401) {
+  //       await clearAuthToken();
+  //       throw Exception('Phiên đăng nhập hết hạn');
+  //     } else {
+  //       print('GET Response Body: $responseBody');
+  //       throw Exception('Lỗi ${response.statusCode}: $responseBody');
+  //     }
+  //   } catch (e) {
+  //     if (kDebugMode) print('API GET Error: $e');
+  //     rethrow;
+  //   }
+  // }
   Future<T> _get<T>(
       String endpoint,
-      T Function(dynamic) parser,
-      ) async {
+      T Function(dynamic) parser, {
+        Map<String, dynamic>? queryParams,
+      }) async {
     try {
-      final uri = Uri.parse('$baseUrl$endpoint');
+      // Tạo URI có kèm query params
+      final uri = Uri.parse('$baseUrl$endpoint').replace(queryParameters: queryParams);
       print('🌐 GET Request: $uri');
-      final httpClient = getHttpClient();
 
+      final httpClient = getHttpClient();
       final request = await httpClient.getUrl(uri);
-      // _headers.forEach((key, value) => request.headers.add(key, value));
+
       final headers = await getHeaders();
       headers.forEach((key, value) => request.headers.add(key, value));
-
 
       final response = await request.close();
       final responseBody = await response.transform(utf8.decoder).join();
@@ -124,6 +161,7 @@ class ApiService {
       rethrow;
     }
   }
+
 
   Future<T> _post<T>(
       String endpoint,
@@ -273,11 +311,17 @@ class ApiService {
     }
   }
   /// Gọi API GET
+  // Future<T> Get<T>(
+  //     String endpoint,
+  //     T Function(dynamic) parser,
+  //     ) =>
+  //     _get(endpoint, parser);
   Future<T> Get<T>(
       String endpoint,
-      T Function(dynamic) parser,
-      ) =>
-      _get(endpoint, parser);
+      T Function(dynamic) parser, {
+        Map<String, dynamic>? queryParams,
+      }) =>
+      _get(endpoint, parser, queryParams: queryParams);
 
   /// Gọi API POST
   Future<T> Post<T>(

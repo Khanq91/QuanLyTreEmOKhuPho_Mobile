@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/tab_su_kien_ph.dart';
-import '../../providers/phu_huynh.dart';
+import '../../../models/tab_su_kien_ph.dart';
+import '../../../providers/phu_huynh.dart';
 
 class ChiTietSuKienScreen extends StatefulWidget {
   final int suKienId;

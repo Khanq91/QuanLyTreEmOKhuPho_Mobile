@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/screen/phuhuynh/main_screen.dart';
-import 'package:mobile/screen/tinhnguyenvien/main_screen.dart';
-import '../providers/auth.dart';
-import '../services/api.dart';
-import 'auth/auth.dart';
+import 'package:mobile/screen/phuhuynh/mainscreen/main_screen.dart';
+import 'package:mobile/screen/tinhnguyenvien/mainscreen/main_screen.dart';
+import '../../providers/auth.dart';
+import '../../services/api.dart';
+import '../auth/auth.dart';
 
 class SplashScreen extends StatefulWidget {
   final AuthProvider auth;
