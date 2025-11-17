@@ -135,8 +135,8 @@ class ThongTinHocTap {
       xepLoai: json['xepLoai'] ?? '',
       hanhKiem: json['hanhKiem'] ?? '',
       ghiChu: json['ghiChu'],
-      ngayCapNhat: json['ngayCapNhat'] != null
-          ? DateTime.parse(json['ngayCapNhat'])
+      ngayCapNhat: json['namHoc'] != null
+          ? DateTime.parse(json['namHoc'])
           : DateTime.now(),
     );
   }
@@ -151,7 +151,7 @@ class ThongTinHocTap {
       'xepLoai': xepLoai,
       'hanhKiem': hanhKiem,
       'ghiChu': ghiChu,
-      'ngayCapNhat': ngayCapNhat.toIso8601String(),
+      'namHoc': ngayCapNhat.toIso8601String(),
     };
   }
 

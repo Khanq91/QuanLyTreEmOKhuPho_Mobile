@@ -1,4 +1,3 @@
-// 1. Model cho Carousel
 class TreEmBasicInfo {
   final int treEmID;
   final String hoTen;
@@ -43,7 +42,6 @@ class DanhSachConResponse {
   }
 }
 
-// 2. Model cho Phiếu học tập
 class PhieuHocTapInfo {
   final int phieuHocTapID;
   final double diemTrungBinh;
@@ -91,7 +89,6 @@ class TabHocTapResponse {
   }
 }
 
-// 3. Model cho Hỗ trợ
 class MinhChungInfo {
   final int minhChungID;
   final String loaiMinhChung;
@@ -195,6 +192,66 @@ class TabHoTroResponse {
     return TabHoTroResponse(
       danhSachHoTro: hoTroList.map((i) => HoTroPhucLoiInfo.fromJson(i)).toList(),
       danhSachUngHo: ungHoList.map((i) => UngHoInfo.fromJson(i)).toList(),
+    );
+  }
+}
+
+class TabQuaDaNhanResponse {
+  final List<QuaPhanPhatInfo> danhSachQua;
+  final int tongSoQua;
+
+  TabQuaDaNhanResponse({
+    required this.danhSachQua,
+    required this.tongSoQua,
+  });
+
+  factory TabQuaDaNhanResponse.fromJson(Map<String, dynamic> json) {
+    return TabQuaDaNhanResponse(
+      danhSachQua: (json['danhSachQua'] as List)
+          .map((item) => QuaPhanPhatInfo.fromJson(item))
+          .toList(),
+      tongSoQua: json['tongSoQua'] ?? 0,
+    );
+  }
+}
+
+class QuaPhanPhatInfo {
+  final int phanPhatID;
+  final String tenQua;
+  final String moTa;
+  final int soLuongNhan;
+  final String ngayPhanPhat;
+  final String nguoiPhanPhat;
+  final String trangThai;
+  final String anh;
+  final int? suKienID;
+  final String? tenSuKien;
+
+  QuaPhanPhatInfo({
+    required this.phanPhatID,
+    required this.tenQua,
+    required this.moTa,
+    required this.soLuongNhan,
+    required this.ngayPhanPhat,
+    required this.nguoiPhanPhat,
+    required this.trangThai,
+    required this.anh,
+    this.suKienID,
+    this.tenSuKien,
+  });
+
+  factory QuaPhanPhatInfo.fromJson(Map<String, dynamic> json) {
+    return QuaPhanPhatInfo(
+      phanPhatID: json['phanPhatID'] ?? 0,
+      tenQua: json['tenQua'] ?? '',
+      moTa: json['moTa'] ?? '',
+      soLuongNhan: json['soLuongNhan'] ?? 1,
+      ngayPhanPhat: json['ngayPhanPhat'] ?? '',
+      nguoiPhanPhat: json['nguoiPhanPhat'] ?? '',
+      trangThai: json['trangThai'] ?? '',
+      anh: json['anh'] ?? '',
+      suKienID: json['suKienID'],
+      tenSuKien: json['tenSuKien'],
     );
   }
 }

@@ -421,7 +421,7 @@ class _ParentHomeTabState extends State<ParentHomeTab> {
               ),
               SizedBox(width: AppDimensions.spacingXXS),
               Text(
-                'Cập nhật: ${DateFormat('dd/MM/yyyy').format(thongTin.ngayCapNhat)}',
+                'Năm học: ${DateFormat('dd/MM/yyyy').format(thongTin.ngayCapNhat)}',
                 style: AppTextStyles.caption,
               ),
             ],

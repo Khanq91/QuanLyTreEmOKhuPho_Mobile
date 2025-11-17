@@ -14,7 +14,7 @@ class PhuHuynhProvider extends ChangeNotifier {
   DashboardPhuHuynh? _dashboard;
   List<TreEmBasicInfo> _danhSachCon = [];
   Map<int, List<PhieuHocTapInfo>> _phieuHocTapMap = {};
-  Map<int, TabHoTroResponse> _hoTroMap = {}; // gồm cả hoTro + ungHo
+  Map<int, TabQuaDaNhanResponse> _quaDaNhanMap = {};
 
   List<DanhSachSuKien> _danhSachSuKien = [];
   ChiTietSuKienResponse? _chiTietSuKien;
@@ -47,10 +47,9 @@ class PhuHuynhProvider extends ChangeNotifier {
   ThongTinTaiKhoanResponse? get thongTinTaiKhoan => _thongTinTaiKhoan;
   ThongTinTreEmChiTietResponse? get thongTinTreEm => _thongTinTreEm;
 
-  List<PhieuHocTapInfo> getPhieuHocTap(int treEmId) =>
-      _phieuHocTapMap[treEmId] ?? [];
+  List<PhieuHocTapInfo> getPhieuHocTap(int treEmId) => _phieuHocTapMap[treEmId] ?? [];
 
-  TabHoTroResponse? getHoTro(int treEmId) => _hoTroMap[treEmId];
+  TabQuaDaNhanResponse? getQuaDaNhan(int treEmId) => _quaDaNhanMap[treEmId];
 
   List<PhuHuynhVoiMoiQuanHe> get danhSachPhuHuynh => _danhSachPhuHuynh;
   PhuHuynhVoiMoiQuanHe? get chiTietPhuHuynh => _chiTietPhuHuynh;
@@ -93,11 +92,10 @@ class PhuHuynhProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- HỖ TRỢ PHÚC LỢI ---
-  Future<void> loadHoTroPhucLoi(int treEmId) async {
+  Future<void> loadQuaDaNhan(int treEmId, {String filter = 'all'}) async {
     try {
-      final response = await _service.getTabHoTro(treEmId);
-      _hoTroMap[treEmId] = response;
+      final response = await _service.getQuaDaNhan(treEmId, filter: filter);
+      _quaDaNhanMap[treEmId] = response;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     }
@@ -475,7 +473,7 @@ class PhuHuynhProvider extends ChangeNotifier {
     _dashboard = null;
     _danhSachCon = [];
     _phieuHocTapMap = {};
-    _hoTroMap = {};
+    _quaDaNhanMap = {};
     _thongBaoData = null;
     // _thongTinPhuHuynh = null;
     _thongTinTaiKhoan = null;

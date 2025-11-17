@@ -28,11 +28,17 @@ class ParentService extends ApiService {
     );
   }
 
-  Future<TabHoTroResponse> getTabHoTro(int treEmId) async {
-    return Get('/Mobile/PhuHuynh/HoTro/$treEmId',
-        (response) => TabHoTroResponse.fromJson(response)
+  Future<TabQuaDaNhanResponse> getQuaDaNhan(int treEmId, {String filter = 'all'}) async {
+    return Get('/Mobile/PhuHuynh/QuaDaNhan/$treEmId?filter=$filter',
+          (response) => TabQuaDaNhanResponse.fromJson(response),
     );
   }
+
+  // Future<TabHoTroResponse> getTabHoTro(int treEmId) async {
+  //   return Get('/Mobile/PhuHuynh/HoTro/$treEmId',
+  //       (response) => TabHoTroResponse.fromJson(response)
+  //   );
+  // }
 
   //Tab sự kiện
   // Lấy danh sách sự kiện với filter

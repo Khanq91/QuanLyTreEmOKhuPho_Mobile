@@ -9,6 +9,7 @@ import '../../other/app_color.dart';
 import '../../other/app_text.dart';
 import '../../other/app_dimension.dart';
 import '../detailsscreen/chi_tiet_phieu_hoc_tap_screen.dart';
+import '../detailsscreen/chi_tiet_su_kien_sk_screen.dart';
 import '../detailsscreen/thong_tin_tre_em_screen.dart';
 import '../../other/xem_anh_screen.dart';
 
@@ -26,7 +27,6 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
   int _currentChildIndex = 0;
   bool _isFirstLoad = true;
 
-  // Để giữ trạng thái khi chuyển tab
   @override
   bool get wantKeepAlive => true;
 
@@ -40,7 +40,6 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Reload khi app quay lại foreground
     if (state == AppLifecycleState.resumed && !_isFirstLoad) {
       _reloadData();
     }
@@ -78,13 +77,13 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
     final provider = context.read<PhuHuynhProvider>();
     await Future.wait([
       provider.loadPhieuHocTap(treEmId),
-      provider.loadHoTroPhucLoi(treEmId),
+      provider.loadQuaDaNhan(treEmId),
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Cần thiết cho AutomaticKeepAliveClientMixin
+    super.build(context);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -130,18 +129,15 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
             },
             child: Column(
               children: [
-                // Carousel Section
                 _buildCarouselSection(provider),
                 SizedBox(height: AppDimensions.spacingXS),
-                // Tab Bar
                 _buildTabBar(),
-                // Tab View
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
                     children: [
                       _buildHocTapTab(provider),
-                      _buildHoTroTab(provider),
+                      _buildQuaDaNhanTab(provider),
                     ],
                   ),
                 ),
@@ -164,7 +160,6 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
       ),
       child: Column(
         children: [
-          // Carousel
           SizedBox(
             height: 180,
             child: PageView.builder(
@@ -182,7 +177,6 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
             ),
           ),
           SizedBox(height: AppDimensions.spacingSM),
-          // Page Indicator
           if (provider.danhSachCon.length > 1)
             SmoothPageIndicator(
               controller: _pageController,
@@ -199,9 +193,6 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
     );
   }
 
-  // ==========================================================================
-  // CHILD CARD
-  // ==========================================================================
   Widget _buildChildCard(TreEmBasicInfo child) {
     final isMale = child.gioiTinh.toLowerCase() == 'nam';
     final avatarColor = isMale
@@ -225,7 +216,6 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
         padding: AppDimensions.paddingAll(AppDimensions.cardPadding),
         child: Row(
           children: [
-            // Avatar
             GestureDetector(
               onTap: () {
                 if (child.anh != null && child.anh!.isNotEmpty) {
@@ -285,7 +275,6 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
               ),
             ),
             SizedBox(width: AppDimensions.spacingMD),
-            // Thông tin
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +295,6 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
                 ],
               ),
             ),
-            // Nút xem chi tiết
             IconButton(
               onPressed: () {
                 Navigator.push(
@@ -367,11 +355,8 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
             icon: Icon(Icons.school, size: AppDimensions.iconSM),
           ),
           Tab(
-            text: 'Hỗ trợ',
-            icon: Icon(
-              Icons.volunteer_activism,
-              size: AppDimensions.iconSM,
-            ),
+            text: 'Quà đã nhận',
+            icon: Icon(Icons.card_giftcard, size: AppDimensions.iconSM),
           ),
         ],
       ),
@@ -498,7 +483,7 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
                     ),
                     SizedBox(width: AppDimensions.spacingXXS),
                     Text(
-                      'Cập nhật: ${_formatDate(phieu.ngayCapNhat)}',
+                      'Năm học: ${_formatDate(phieu.ngayCapNhat)}',
                       style: AppTextStyles.caption,
                     ),
                     const Spacer(),
@@ -605,27 +590,29 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
   }
 
   // ==========================================================================
-  // HỖ TRỢ TAB
+  // QUÀ ĐÃ NHẬN TAB
   // ==========================================================================
-  Widget _buildHoTroTab(PhuHuynhProvider provider) {
+  Widget _buildQuaDaNhanTab(PhuHuynhProvider provider) {
     if (provider.danhSachCon.isEmpty) return const SizedBox();
 
     final treEmId = provider.danhSachCon[_currentChildIndex].treEmID;
-    final hoTroData = provider.getHoTro(treEmId);
+    final quaData = provider.getQuaDaNhan(treEmId);
 
     if (provider.isLoading) {
       return _buildShimmerList();
     }
 
-    if (hoTroData == null ||
-        (hoTroData.danhSachHoTro.isEmpty && hoTroData.danhSachUngHo.isEmpty)) {
-      return _buildEmptyMessage(
-        'Chưa có thông tin hỗ trợ',
-        Icons.volunteer_activism,
-      );
-    }
+    // if (quaData == null || quaData.danhSachQua.isEmpty) {
+    //   return _buildEmptyMessage(
+    //     'Chưa có quà nào',
+    //     Icons.card_giftcard,
+    //   );
+    // }
 
-    return _HoTroTabContent(hoTroData: hoTroData);
+    return _QuaDaNhanTabContent(
+      quaData: quaData!,
+      treEmId: treEmId,
+    );
   }
 
   // ==========================================================================
@@ -701,9 +688,6 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
     );
   }
 
-  // ==========================================================================
-  // HELPER
-  // ==========================================================================
   String _formatDate(String date) {
     try {
       final dt = DateTime.parse(date);
@@ -715,19 +699,23 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
 }
 
 // ============================================================================
-// HỖ TRỢ TAB CONTENT (với Filter)
+// QUÀ ĐÃ NHẬN TAB CONTENT (với Filter)
 // ============================================================================
-class _HoTroTabContent extends StatefulWidget {
-  final TabHoTroResponse hoTroData;
+class _QuaDaNhanTabContent extends StatefulWidget {
+  final TabQuaDaNhanResponse quaData;
+  final int treEmId;
 
-  const _HoTroTabContent({required this.hoTroData});
+  const _QuaDaNhanTabContent({
+    required this.quaData,
+    required this.treEmId,
+  });
 
   @override
-  State<_HoTroTabContent> createState() => _HoTroTabContentState();
+  State<_QuaDaNhanTabContent> createState() => _QuaDaNhanTabContentState();
 }
 
-class _HoTroTabContentState extends State<_HoTroTabContent> {
-  int _selectedFilter = 0; // 0: Tất cả, 1: Phúc lợi, 2: Ủng hộ
+class _QuaDaNhanTabContentState extends State<_QuaDaNhanTabContent> {
+  String _selectedFilter = 'all'; // 'all', 'da-nhan', 'dang-tien-hanh'
 
   @override
   Widget build(BuildContext context) {
@@ -754,23 +742,23 @@ class _HoTroTabContentState extends State<_HoTroTabContent> {
           child: _buildFilterChip(
             label: 'Tất cả',
             icon: Icons.all_inclusive,
-            index: 0,
+            filter: 'all',
           ),
         ),
         SizedBox(width: AppDimensions.spacingXS),
         Expanded(
           child: _buildFilterChip(
-            label: 'Phúc lợi',
-            icon: Icons.handshake,
-            index: 1,
+            label: 'Đã nhận',
+            icon: Icons.check_circle_outline,
+            filter: 'da-nhan',
           ),
         ),
         SizedBox(width: AppDimensions.spacingXS),
         Expanded(
           child: _buildFilterChip(
-            label: 'Ủng hộ',
-            icon: Icons.favorite,
-            index: 2,
+            label: 'Đang tiến hành',
+            icon: Icons.pending_outlined,
+            filter: 'dang-tien-hanh',
           ),
         ),
       ],
@@ -780,17 +768,22 @@ class _HoTroTabContentState extends State<_HoTroTabContent> {
   Widget _buildFilterChip({
     required String label,
     required IconData icon,
-    required int index,
+    required String filter,
   }) {
-    final isSelected = _selectedFilter == index;
+    final isSelected = _selectedFilter == filter;
     return Material(
       color: isSelected ? AppColors.primary : AppColors.surfaceVariant,
       borderRadius: AppDimensions.radiusCircular(AppDimensions.chipRadius),
       child: InkWell(
         onTap: () {
           setState(() {
-            _selectedFilter = index;
+            _selectedFilter = filter;
           });
+          // Load lại data với filter mới
+          context.read<PhuHuynhProvider>().loadQuaDaNhan(
+            widget.treEmId,
+            filter: filter,
+          );
         },
         borderRadius: AppDimensions.radiusCircular(AppDimensions.chipRadius),
         child: Container(
@@ -808,12 +801,16 @@ class _HoTroTabContentState extends State<_HoTroTabContent> {
                     : AppColors.textSecondary,
               ),
               SizedBox(width: AppDimensions.spacingXXS),
-              Text(
-                label,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: isSelected
-                      ? AppColors.textOnPrimary
-                      : AppColors.textSecondary,
+              Flexible(
+                child: Text(
+                  label,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: isSelected
+                        ? AppColors.textOnPrimary
+                        : AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -824,32 +821,19 @@ class _HoTroTabContentState extends State<_HoTroTabContent> {
   }
 
   Widget _buildFilteredList() {
-    final hoTroList = widget.hoTroData.danhSachHoTro;
-    final ungHoList = widget.hoTroData.danhSachUngHo;
-
-    List<Widget> items = [];
-
-    if (_selectedFilter == 0 || _selectedFilter == 1) {
-      items.addAll(hoTroList.map((item) => _buildHoTroCard(item)));
-    }
-
-    if (_selectedFilter == 0 || _selectedFilter == 2) {
-      items.addAll(ungHoList.map((item) => _buildUngHoCard(item)));
-    }
-
-    if (items.isEmpty) {
+    if (widget.quaData == null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.info_outline,
+              Icons.card_giftcard,
               size: AppDimensions.iconXXL,
               color: AppColors.textDisabled,
             ),
             SizedBox(height: AppDimensions.spacingSM),
             Text(
-              'Không có dữ liệu',
+              'Chưa có dữ liệu',
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -859,19 +843,69 @@ class _HoTroTabContentState extends State<_HoTroTabContent> {
       );
     }
 
-    return ListView(
+    final quaList = widget.quaData!.danhSachQua;
+
+    if (quaList.isEmpty) {
+      return _buildEmptyStateForFilter();
+    }
+
+    return ListView.builder(
       padding: AppDimensions.paddingSymmetric(
         horizontal: AppDimensions.screenPaddingH,
         vertical: AppDimensions.spacingXS,
       ),
-      children: items,
+      itemCount: quaList.length,
+      itemBuilder: (context, index) {
+        return _buildQuaCard(quaList[index]);
+      },
+    );
+  }
+
+  Widget _buildEmptyStateForFilter() {
+    String message;
+    IconData icon;
+
+    switch (_selectedFilter) {
+      case 'da-nhan':
+        message = 'Chưa nhận quà nào';
+        icon = Icons.inbox_outlined;
+        break;
+      case 'dang-tien-hanh':
+        message = 'Không có quà đang chờ';
+        icon = Icons.hourglass_empty;
+        break;
+      default:
+        message = 'Chưa có quà nào';
+        icon = Icons.card_giftcard;
+    }
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: AppDimensions.iconXXL,
+            color: AppColors.textDisabled,
+          ),
+          SizedBox(height: AppDimensions.spacingSM),
+          Text(
+            message,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   // ==========================================================================
-  // HỖ TRỢ PHÚC LỢI CARD
+  // QUÀ CARD
   // ==========================================================================
-  Widget _buildHoTroCard(HoTroPhucLoiInfo hoTro) {
+  Widget _buildQuaCard(QuaPhanPhatInfo qua) {
+    final baseUrl = 'http://10.0.2.2:5035';
+
     return Container(
       margin: AppDimensions.paddingOnly(bottom: AppDimensions.cardGap),
       decoration: BoxDecoration(
@@ -879,7 +913,7 @@ class _HoTroTabContentState extends State<_HoTroTabContent> {
         borderRadius: AppDimensions.radiusCircular(AppDimensions.cardRadius),
         border: Border(
           left: BorderSide(
-            color: AppColors.success,
+            color: AppColors.accent,
             width: AppDimensions.borderExtraThick,
           ),
         ),
@@ -900,19 +934,20 @@ class _HoTroTabContentState extends State<_HoTroTabContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header: Icon + Tên quà + Status
             Row(
               children: [
                 Container(
                   padding: AppDimensions.paddingAll(AppDimensions.spacingXS),
                   decoration: BoxDecoration(
-                    color: AppColors.successOverlay,
+                    color: AppColors.accentOverlay,
                     borderRadius: AppDimensions.radiusCircular(
                       AppDimensions.radiusSM,
                     ),
                   ),
                   child: Icon(
-                    Icons.handshake,
-                    color: AppColors.success,
+                    Icons.redeem,
+                    color: AppColors.accent,
                     size: AppDimensions.iconMD,
                   ),
                 ),
@@ -922,11 +957,13 @@ class _HoTroTabContentState extends State<_HoTroTabContent> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        hoTro.loaiHoTro,
+                        qua.tenQua,
                         style: AppTextStyles.headingSmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        'Người chịu trách nhiệm: ${hoTro.nguoiChiuTrachNhiem}',
+                        'Người phân phát: ${qua.nguoiPhanPhat}',
                         style: AppTextStyles.caption,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -934,330 +971,279 @@ class _HoTroTabContentState extends State<_HoTroTabContent> {
                     ],
                   ),
                 ),
+                SizedBox(width: AppDimensions.spacingXS),
+                _buildTrangThaiChip(qua.trangThai),
               ],
             ),
-            SizedBox(height: AppDimensions.spacingSM),
-            Text(
-              hoTro.moTa,
-              style: AppTextStyles.bodyMedium,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: AppDimensions.spacingSM),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: AppDimensions.iconXS,
-                      color: AppColors.textSecondary,
-                    ),
-                    SizedBox(width: AppDimensions.spacingXXS),
-                    Text(
-                      _formatDate(hoTro.ngayCap),
-                      style: AppTextStyles.caption,
-                    ),
-                  ],
-                ),
-                if (hoTro.danhSachMinhChung.isNotEmpty)
-                  TextButton.icon(
-                    onPressed: () {
-                      _showMinhChungDialog(hoTro.danhSachMinhChung);
-                    },
-                    icon: Icon(
-                      Icons.image,
-                      size: AppDimensions.iconXS,
-                      color: AppColors.success,
-                    ),
-                    label: Text(
-                      'Xem minh chứng (${hoTro.danhSachMinhChung.length})',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.success,
-                      ),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: AppDimensions.paddingSymmetric(
-                        horizontal: AppDimensions.spacingSM,
-                        vertical: AppDimensions.spacingXS,
-                      ),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  // ==========================================================================
-  // ỦNG HỘ CARD
-  // ==========================================================================
-  Widget _buildUngHoCard(UngHoInfo ungHo) {
-    return Container(
-      margin: AppDimensions.paddingOnly(bottom: AppDimensions.cardGap),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppDimensions.radiusCircular(AppDimensions.cardRadius),
-        border: Border(
-          left: BorderSide(
-            color: AppColors.secondary,
-            width: AppDimensions.borderExtraThick,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppDimensions.radiusCircular(AppDimensions.cardRadius),
-        ),
-        padding: AppDimensions.paddingAll(AppDimensions.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: AppDimensions.paddingAll(AppDimensions.spacingXS),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryOverlay,
-                    borderRadius: AppDimensions.radiusCircular(
-                      AppDimensions.radiusSM,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.favorite,
-                    color: AppColors.secondary,
-                    size: AppDimensions.iconMD,
-                  ),
-                ),
-                SizedBox(width: AppDimensions.spacingSM),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        ungHo.loaiUngHo,
-                        style: AppTextStyles.headingSmall,
-                      ),
-                      Text(
-                        '${ungHo.tenManhThuongQuan} (${ungHo.loaiManhThuongQuan})',
-                        style: AppTextStyles.caption,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            // Divider
+            Divider(
+              height: AppDimensions.spacingLG,
+              color: AppColors.divider,
+              thickness: AppDimensions.dividerThickness,
             ),
-            SizedBox(height: AppDimensions.spacingSM),
-            // Số tiền box
-            Container(
-              padding: AppDimensions.paddingAll(AppDimensions.spacingSM),
-              decoration: BoxDecoration(
-                color: AppColors.accentOverlay,
-                borderRadius: AppDimensions.radiusCircular(
-                  AppDimensions.radiusSM,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.monetization_on,
-                    color: AppColors.accentDark,
-                    size: AppDimensions.iconMD,
-                  ),
-                  SizedBox(width: AppDimensions.spacingXS),
-                  Text(
-                    _formatCurrency(ungHo.soTien),
-                    style: AppTextStyles.headingMedium.copyWith(
-                      color: AppColors.accentDark,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (ungHo.ghiChu.isNotEmpty) ...[
-              SizedBox(height: AppDimensions.spacingSM),
+
+            // Mô tả
+            if (qua.moTa.isNotEmpty) ...[
               Text(
-                ungHo.ghiChu,
+                qua.moTa,
                 style: AppTextStyles.bodyMedium,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+              SizedBox(height: AppDimensions.spacingSM),
             ],
-            SizedBox(height: AppDimensions.spacingSM),
+
+            // Số lượng và Ngày nhận
             Row(
               children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: AppDimensions.iconXS,
-                  color: AppColors.textSecondary,
+                Expanded(
+                  child: Container(
+                    padding: AppDimensions.paddingSymmetric(
+                      horizontal: AppDimensions.spacingSM,
+                      vertical: AppDimensions.spacingXS,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.infoOverlay,
+                      borderRadius: AppDimensions.radiusCircular(
+                        AppDimensions.radiusSM,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.shopping_basket,
+                          size: AppDimensions.iconSM,
+                          color: AppColors.info,
+                        ),
+                        SizedBox(width: AppDimensions.spacingXS),
+                        Text(
+                          'Số lượng: ${qua.soLuongNhan}',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                SizedBox(width: AppDimensions.spacingXXS),
-                Text(
-                  _formatDate(ungHo.ngayUngHo),
-                  style: AppTextStyles.caption,
+                SizedBox(width: AppDimensions.spacingXS),
+                Expanded(
+                  child: Container(
+                    padding: AppDimensions.paddingSymmetric(
+                      horizontal: AppDimensions.spacingSM,
+                      vertical: AppDimensions.spacingXS,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.successOverlay,
+                      borderRadius: AppDimensions.radiusCircular(
+                        AppDimensions.radiusSM,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          size: AppDimensions.iconSM - 2,
+                          color: AppColors.success,
+                        ),
+                        SizedBox(width: AppDimensions.spacingXS),
+                        Flexible(
+                          child: Text(
+                            qua.ngayPhanPhat,
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  // ==========================================================================
-  // MINH CHỨNG DIALOG
-  // ==========================================================================
-  void _showMinhChungDialog(List<MinhChungInfo> minhChungList) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: AppDimensions.radiusCircular(
-            AppDimensions.dialogRadius,
-          ),
-        ),
-        child: Container(
-          constraints: const BoxConstraints(maxHeight: 500),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+            SizedBox(height: AppDimensions.spacingSM),
+
+            // Xem ảnh quà
+            if (qua.anh.isNotEmpty)
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ImageViewerScreen(
+                        imageUrl: '$baseUrl${qua.anh}',
+                        title: qua.tenQua,
+                      ),
+                    ),
+                  );
+                },
+                icon: Icon(
+                  Icons.image,
+                  size: AppDimensions.iconSM,
+                  color: AppColors.accent,
+                ),
+                label: Text(
+                  'Xem ảnh quà',
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.accent,
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  padding: AppDimensions.paddingSymmetric(
+                    horizontal: AppDimensions.spacingSM,
+                    vertical: AppDimensions.spacingXS,
+                  ),
+                  backgroundColor: AppColors.accentOverlay,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: AppDimensions.radiusCircular(
+                      AppDimensions.radiusSM,
+                    ),
+                  ),
+                ),
+              ),
+
+            // Thông tin sự kiện
+            if (qua.suKienID != null) ...[
+              SizedBox(height: AppDimensions.spacingSM),
               Container(
-                padding: AppDimensions.paddingAll(AppDimensions.spacingMD),
+                padding: AppDimensions.paddingAll(AppDimensions.spacingSM),
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(AppDimensions.dialogRadius),
-                    topRight: Radius.circular(AppDimensions.dialogRadius),
+                  color: AppColors.primaryOverlay,
+                  borderRadius: AppDimensions.radiusCircular(
+                    AppDimensions.radiusSM,
+                  ),
+                  border: Border.all(
+                    color: AppColors.primary.withOpacity(0.3),
+                    width: AppDimensions.borderThin,
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      Icons.image,
-                      color: AppColors.textOnPrimary,
-                      size: AppDimensions.iconMD,
+                      Icons.event,
+                      size: AppDimensions.iconSM,
+                      color: AppColors.primary,
                     ),
                     SizedBox(width: AppDimensions.spacingXS),
-                    Text(
-                      'Minh chứng',
-                      style: AppTextStyles.headingMedium.copyWith(
-                        color: AppColors.textOnPrimary,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Sự kiện liên quan',
+                            style: AppTextStyles.caption,
+                          ),
+                          Text(
+                            qua.tenSuKien ?? 'Không có tên',
+                            style: AppTextStyles.labelMedium.copyWith(
+                              color: AppColors.primary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
-                    const Spacer(),
                     IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChiTietSuKienScreen(
+                              suKienId: qua.suKienID!,
+                            ),
+                          ),
+                        );
+                      },
                       icon: Icon(
-                        Icons.close,
-                        color: AppColors.textOnPrimary,
+                        Icons.arrow_forward_ios,
+                        size: AppDimensions.iconXS,
+                        color: AppColors.primary,
                       ),
-                      onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      tooltip: 'Xem chi tiết sự kiện',
                     ),
                   ],
                 ),
               ),
-              Expanded(
-                child: ListView.builder(
-                  padding: AppDimensions.paddingAll(AppDimensions.spacingMD),
-                  itemCount: minhChungList.length,
-                  itemBuilder: (context, index) {
-                    final mc = minhChungList[index];
-                    return Container(
-                      margin: AppDimensions.paddingOnly(
-                        bottom: AppDimensions.spacingXS,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: AppDimensions.radiusCircular(
-                          AppDimensions.radiusMD,
-                        ),
-                        border: Border.all(
-                          color: AppColors.divider,
-                          width: AppDimensions.borderThin,
-                        ),
-                      ),
-                      child: ListTile(
-                        leading: Container(
-                          padding: AppDimensions.paddingAll(
-                            AppDimensions.spacingXS,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.infoOverlay,
-                            borderRadius: AppDimensions.radiusCircular(
-                              AppDimensions.radiusSM,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.image,
-                            color: AppColors.info,
-                            size: AppDimensions.iconMD,
-                          ),
-                        ),
-                        title: Text(
-                          mc.loaiMinhChung,
-                          style: AppTextStyles.bodyMedium,
-                        ),
-                        subtitle: Text(
-                          _formatDate(mc.ngayCap),
-                          style: AppTextStyles.caption,
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward_ios,
-                          size: AppDimensions.iconXS,
-                          color: AppColors.textSecondary,
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ImageViewerScreen(
-                                imageUrl: "http://10.0.2.2:5035${mc.filePath}",
-                                title: mc.loaiMinhChung,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
+            ] else ...[
+              SizedBox(height: AppDimensions.spacingSM),
+              Container(
+                padding: AppDimensions.paddingAll(AppDimensions.spacingSM),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  borderRadius: AppDimensions.radiusCircular(
+                    AppDimensions.radiusSM,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: AppDimensions.iconSM,
+                      color: AppColors.textSecondary,
+                    ),
+                    SizedBox(width: AppDimensions.spacingXS),
+                    Text(
+                      'Không có sự kiện liên quan',
+                      style: AppTextStyles.caption,
+                    ),
+                  ],
                 ),
               ),
             ],
-          ),
+          ],
         ),
       ),
     );
   }
 
   // ==========================================================================
-  // HELPERS
+  // TRẠNG THÁI CHIP
   // ==========================================================================
-  String _formatDate(String date) {
-    try {
-      final dt = DateTime.parse(date);
-      return DateFormat('dd/MM/yyyy').format(dt);
-    } catch (e) {
-      return date;
-    }
-  }
+  Widget _buildTrangThaiChip(String trangThai) {
+    Color color;
+    IconData icon;
 
-  String _formatCurrency(double amount) {
-    final formatter = NumberFormat('#,##0', 'vi_VN');
-    return '${formatter.format(amount)} đ';
+    if (trangThai.toLowerCase().contains('đã nhận')) {
+      color = AppColors.success;
+      icon = Icons.check_circle;
+    } else {
+      // Đang tiến hành, Chờ nhận, etc.
+      color = AppColors.warning;
+      icon = Icons.pending;
+    }
+
+    return Container(
+      padding: AppDimensions.paddingSymmetric(
+        horizontal: AppDimensions.chipPaddingH,
+        vertical: AppDimensions.chipPaddingV,
+      ),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: AppDimensions.radiusCircular(AppDimensions.chipRadius),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: AppDimensions.iconXS,
+            color: AppColors.textOnPrimary,
+          ),
+          SizedBox(width: AppDimensions.spacingXXS),
+          Text(
+            trangThai,
+            style: AppTextStyles.chip,
+          ),
+        ],
+      ),
+    );
   }
 }

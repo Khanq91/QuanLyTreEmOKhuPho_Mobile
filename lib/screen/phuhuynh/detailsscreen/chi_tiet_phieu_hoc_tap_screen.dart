@@ -218,7 +218,7 @@ class ChiTietPhieuHocTapScreen extends StatelessWidget {
                   ),
                   SizedBox(width: AppDimensions.spacingXS),
                   Text(
-                    'Cập nhật: ${_formatDate(phieu.ngayCapNhat)}',
+                    'Năm học: ${_formatDate(phieu.ngayCapNhat)}',
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.textSecondary,
                     ),
