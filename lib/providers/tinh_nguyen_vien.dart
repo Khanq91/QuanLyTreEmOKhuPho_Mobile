@@ -32,10 +32,15 @@ class VolunteerProvider extends ChangeNotifier {
   int _soLuongChuaDoc = 0;
 
   List<TreEmCanVanDong> _treCanVanDong = [];
-  List<TreEmPhatHoTro> _trePhatHoTro = [];
+  List<TreEmPhanPhatQua> _trePhanPhatQua = [];
   ChiTietTreEmVanDong? _chiTietTreVanDong;
-  ChiTietTreEmHoTro? _chiTietTreHoTro;
+  ChiTietTreEmPhanPhatQua? _chiTietTrePhanPhatQua;
 
+  String _filterPhanPhatQua = 'TatCa';
+  String _searchQueryPhanPhatQua = '';
+
+  List<KhuPhoDto> _danhSachKhuPho = [];
+  bool _isLoadingKhuPho = false;
   TinhNguyenVienProfile? _profile;
   LichSuHoatDong? _lichSuHoatDong;
   int _currentPage = 1;
@@ -66,10 +71,15 @@ class VolunteerProvider extends ChangeNotifier {
   int get soLuongChuaDoc => _soLuongChuaDoc;
 
   List<TreEmCanVanDong> get treCanVanDong => _treCanVanDong;
-  List<TreEmPhatHoTro> get trePhatHoTro => _trePhatHoTro;
+  List<TreEmPhanPhatQua> get trePhanPhatQua => _trePhanPhatQua;
   ChiTietTreEmVanDong? get chiTietTreVanDong => _chiTietTreVanDong;
-  ChiTietTreEmHoTro? get chiTietTreHoTro => _chiTietTreHoTro;
+  ChiTietTreEmPhanPhatQua? get chiTietTrePhanPhatQua => _chiTietTrePhanPhatQua;
 
+  String get filterPhanPhatQua => _filterPhanPhatQua;
+  String get searchQueryPhanPhatQua => _searchQueryPhanPhatQua;
+
+  List<KhuPhoDto> get danhSachKhuPho => _danhSachKhuPho;
+  bool get isLoadingKhuPho => _isLoadingKhuPho;
   TinhNguyenVienProfile? get profile => _profile;
   LichSuHoatDong? get lichSuHoatDong => _lichSuHoatDong;
   String? get filterKhuPho => _filterKhuPho;
@@ -325,16 +335,22 @@ class VolunteerProvider extends ChangeNotifier {
   }
   // ==================== TRẺ EM METHODS ====================
   /// Danh sách trẻ em
-  Future<void> loadDanhSachTreEm() async {
+  Future<void> loadDanhSachTreEm({String? filter, String? search}) async {
     try {
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
 
-      final response = await _service.getDanhSachTreEm();
+      if (filter != null) _filterPhanPhatQua = filter;
+      if (search != null) _searchQueryPhanPhatQua = search;
+
+      final response = await _service.getDanhSachTreEm(
+        filter: _filterPhanPhatQua,
+        search: _searchQueryPhanPhatQua.isEmpty ? null : _searchQueryPhanPhatQua,
+      );
 
       _treCanVanDong = response.treCanVanDong;
-      _trePhatHoTro = response.trePhatHoTro;
+      _trePhanPhatQua = response.trePhanPhatQua;
 
       _isLoading = false;
       notifyListeners();
@@ -366,21 +382,39 @@ class VolunteerProvider extends ChangeNotifier {
   }
 
   /// Chi tiết trẻ hỗ trợ
-  Future<void> loadChiTietTreHoTro(int hoTroId) async {
+  // Future<void> loadChiTietTreHoTro(int hoTroId) async {
+  //   try {
+  //     _isLoading = true;
+  //     _errorMessage = null;
+  //     notifyListeners();
+  //
+  //     _chiTietTreHoTro = await _service.getChiTietTreEmHoTro(hoTroId);
+  //
+  //     _isLoading = false;
+  //     notifyListeners();
+  //   } catch (e) {
+  //     _isLoading = false;
+  //     _errorMessage = 'Lỗi tải chi tiết hỗ trợ: ${e.toString()}';
+  //     notifyListeners();
+  //     if (kDebugMode) print('Error loading chi tiet tre ho tro: $e');
+  //   }
+  // }
+  ///LOAD CHI TIẾT TRẺ PHÂN PHÁT QUÀ
+  Future<void> loadChiTietTrePhanPhatQua(int phanPhatId) async {
     try {
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
 
-      _chiTietTreHoTro = await _service.getChiTietTreEmHoTro(hoTroId);
+      _chiTietTrePhanPhatQua = await _service.getChiTietTreEmPhanPhatQua(phanPhatId);
 
       _isLoading = false;
       notifyListeners();
     } catch (e) {
       _isLoading = false;
-      _errorMessage = 'Lỗi tải chi tiết hỗ trợ: ${e.toString()}';
+      _errorMessage = 'Lỗi tải chi tiết phân phát quà: ${e.toString()}';
       notifyListeners();
-      if (kDebugMode) print('Error loading chi tiet tre ho tro: $e');
+      if (kDebugMode) print('Error loading chi tiet tre phan phat qua: $e');
     }
   }
 
@@ -467,6 +501,63 @@ class VolunteerProvider extends ChangeNotifier {
       return false;
     }
   }
+// ============================================================================
+// CẬP NHẬT PHÂN PHÁT QUÀ
+// ============================================================================
+  Future<bool> capNhatPhanPhatQua({
+    required int phanPhatID,
+    required String trangThai,
+    required String ngayPhanPhat,
+    String? ghiChu,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final request = CapNhatPhanPhatQuaRequest(
+        phanPhatID: phanPhatID,
+        trangThai: trangThai,
+        ngayPhanPhat: ngayPhanPhat,
+        ghiChu: ghiChu,
+      );
+
+      final result = await _service.capNhatPhanPhatQua(request);
+
+      _isLoading = false;
+
+      if (result['success'] == true) {
+        // Reload danh sách
+        await loadDanhSachTreEm();
+        return true;
+      } else {
+        _errorMessage = result['message'] ?? 'Cập nhật thất bại';
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Lỗi cập nhật phân phát quà: ${e.toString()}';
+      notifyListeners();
+      if (kDebugMode) print('Error cap nhat phan phat qua: $e');
+      return false;
+    }
+  }
+
+// ============================================================================
+// FILTER VÀ SEARCH
+// ============================================================================
+  void changePhanPhatQuaFilter(String filter) {
+    _filterPhanPhatQua = filter;
+    loadDanhSachTreEm();
+  }
+
+  void searchPhanPhatQua(String query) {
+    _searchQueryPhanPhatQua = query;
+    loadDanhSachTreEm();
+  }
+
+
   // LOAD PROFILE
   // ==========================================================================
   Future<void> loadProfile() async {
@@ -486,7 +577,47 @@ class VolunteerProvider extends ChangeNotifier {
       rethrow;
     }
   }
+// ==========================================================================
+// LOAD DANH SÁCH KHU PHỐ
+// ==========================================================================
+  Future<void> loadDanhSachKhuPho() async {
+    try {
+      _isLoadingKhuPho = true;
+      _errorMessage = null;
+      notifyListeners();
 
+      _danhSachKhuPho = await _service.getDanhSachKhuPho();
+
+      _isLoadingKhuPho = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoadingKhuPho = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+// ==========================================================================
+// CẬP NHẬT THÔNG TIN TÀI KHOẢN
+// ==========================================================================
+  Future<void> capNhatThongTinTaiKhoan(UpdateProfileRequest request) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      _profile = await _service.capNhatThongTinTaiKhoan(request);
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
   // LOAD LỊCH SỬ HOẠT ĐỘNG
   Future<void> loadLichSuHoatDong({bool refresh = false}) async {
     try {
@@ -673,8 +804,12 @@ class VolunteerProvider extends ChangeNotifier {
     _soLuongChuaDoc = 0;
 
     // Trẻ em
+    _treCanVanDong = [];
+    _trePhanPhatQua = [];
     _chiTietTreVanDong = null;
-    _chiTietTreHoTro = null;
+    _chiTietTrePhanPhatQua = null;
+    _filterPhanPhatQua = 'TatCa';
+    _searchQueryPhanPhatQua = '';
 
     // Tài khoản
 

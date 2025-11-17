@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../../models/dashboard_tnv.dart';
 import '../../../providers/tinh_nguyen_vien.dart';
-import '../../phuhuynh/detailsscreen/xem_anh_screen.dart';
+import '../../other/xem_anh_screen.dart';
 import '../detailsscreen/lich_trong_screen.dart';
 import '../../other/app_color.dart';
 import '../../other/app_text.dart';

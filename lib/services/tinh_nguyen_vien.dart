@@ -132,13 +132,53 @@ class VolunteerService extends ApiService {
 
   // ============ DANH SÁCH TRẺ EM ============
 
-  Future<DanhSachTreEmResponse> getDanhSachTreEm() async {
+  // Future<DanhSachTreEmResponse> getDanhSachTreEm() async {
+  //   return Get(
+  //     '/Mobile/TinhNguyenVien/DanhSachTreEm',
+  //         (response) => DanhSachTreEmResponse.fromJson(response),
+  //   );
+  // }
+  Future<DanhSachTreEmResponse> getDanhSachTreEm({
+    String? filter,
+    String? search,
+  }) async {
+    final queryParams = <String, dynamic>{};
+
+    if (filter != null && filter != 'TatCa') {
+      queryParams['filter'] = filter;
+    }
+
+    if (search != null && search.isNotEmpty) {
+      queryParams['search'] = search;
+    }
+
     return Get(
       '/Mobile/TinhNguyenVien/DanhSachTreEm',
           (response) => DanhSachTreEmResponse.fromJson(response),
+      queryParams: queryParams,
+    );
+  }
+// ============================================================================
+// CHI TIẾT TRẺ EM PHÂN PHÁT QUÀ
+// ============================================================================
+  Future<ChiTietTreEmPhanPhatQua> getChiTietTreEmPhanPhatQua(int phanPhatId) async {
+    return Get(
+      '/Mobile/TinhNguyenVien/PhanPhatQua/$phanPhatId',
+          (response) => ChiTietTreEmPhanPhatQua.fromJson(response),
     );
   }
 
+// ============================================================================
+// CẬP NHẬT PHÂN PHÁT QUÀ
+// ============================================================================
+  Future<Map<String, dynamic>> capNhatPhanPhatQua(
+      CapNhatPhanPhatQuaRequest request) async {
+    return Put(
+      '/Mobile/TinhNguyenVien/CapNhatPhanPhatQua',
+      request.toJson(),
+          (response) => response,
+    );
+  }
   // ============ CHI TIẾT TRẺ CẦN VẬN ĐỘNG ============
 
   Future<ChiTietTreEmVanDong> getChiTietTreEmVanDong(int treEmId) async {
@@ -282,6 +322,29 @@ extension ApiServiceMultipart on ApiService {
     return Get(
       '/Mobile/TinhNguyenVien/Profile',
           (response) => TinhNguyenVienProfile.fromJson(response),
+    );
+  }
+  // ==========================================================================
+// LẤY DANH SÁCH KHU PHỐ
+// ==========================================================================
+  Future<List<KhuPhoDto>> getDanhSachKhuPho() async {
+    return Get(
+      '/Mobile/TinhNguyenVien/DanhSachKhuPho',
+          (response) => (response as List)
+          .map((item) => KhuPhoDto.fromJson(item))
+          .toList(),
+    );
+  }
+
+// ==========================================================================
+// CẬP NHẬT THÔNG TIN TÀI KHOẢN
+// ==========================================================================
+  Future<TinhNguyenVienProfile> capNhatThongTinTaiKhoan(
+      UpdateProfileRequest request) async {
+    return Put(
+      '/Mobile/TinhNguyenVien/Profile',
+      request.toJson(),
+          (response) => TinhNguyenVienProfile.fromJson(response['profile']),
     );
   }
 

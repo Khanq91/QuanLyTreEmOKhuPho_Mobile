@@ -1,4 +1,86 @@
 // File: models/tinh_nguyen_vien_profile.dart
+// File: models/tab_tai_khoan_tnv.dart
+// Thêm các class sau
+
+// ==========================================================================
+// KHU PHỐ DTO
+// ==========================================================================
+class KhuPhoDto {
+  final int khuPhoId;
+  final String tenKhuPho;
+  final String? diaChi;
+  final String? quanHuyen;
+  final String? thanhPho;
+
+  KhuPhoDto({
+    required this.khuPhoId,
+    required this.tenKhuPho,
+    this.diaChi,
+    this.quanHuyen,
+    this.thanhPho,
+  });
+
+  factory KhuPhoDto.fromJson(Map<String, dynamic> json) {
+    return KhuPhoDto(
+      khuPhoId: json['khuPhoId'],
+      tenKhuPho: json['tenKhuPho'],
+      diaChi: json['diaChi'],
+      quanHuyen: json['quanHuyen'],
+      thanhPho: json['thanhPho'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'khuPhoId': khuPhoId,
+      'tenKhuPho': tenKhuPho,
+      'diaChi': diaChi,
+      'quanHuyen': quanHuyen,
+      'thanhPho': thanhPho,
+    };
+  }
+}
+
+// ==========================================================================
+// UPDATE PROFILE REQUEST
+// ==========================================================================
+class UpdateProfileRequest {
+  final String? hoTen;
+  final String? sdt;
+  final String? email;
+  final DateTime? ngaySinh;
+  final int? khuPhoId;
+  final String? tenKhuPhoMoi;
+  final String? diaChiKhuPho;
+  final String? quanHuyen;
+  final String? thanhPho;
+
+  UpdateProfileRequest({
+    this.hoTen,
+    this.sdt,
+    this.email,
+    this.ngaySinh,
+    this.khuPhoId,
+    this.tenKhuPhoMoi,
+    this.diaChiKhuPho,
+    this.quanHuyen,
+    this.thanhPho,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (hoTen != null) 'hoTen': hoTen,
+      if (sdt != null) 'sdt': sdt,
+      if (email != null) 'email': email,
+      if (ngaySinh != null) 'ngaySinh': ngaySinh!.toIso8601String(),
+      if (khuPhoId != null) 'khuPhoId': khuPhoId,
+      if (tenKhuPhoMoi != null) 'tenKhuPhoMoi': tenKhuPhoMoi,
+      if (diaChiKhuPho != null) 'diaChiKhuPho': diaChiKhuPho,
+      if (quanHuyen != null) 'quanHuyen': quanHuyen,
+      if (thanhPho != null) 'thanhPho': thanhPho,
+    };
+  }
+}
 class TinhNguyenVienProfile {
   final int userId;
   final String hoTen;

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/screen/tinhnguyenvien/mainscreen/su_kien_tab.dart';
 import 'package:mobile/screen/tinhnguyenvien/mainscreen/tai_khoan_tab.dart';
+import 'package:mobile/screen/tinhnguyenvien/mainscreen/thong_bao_tab.dart';
 import 'package:mobile/screen/tinhnguyenvien/mainscreen/tre_em_tab.dart';
 import '../../other/app_color.dart';
 import '../../other/app_dimension.dart';
@@ -31,7 +32,7 @@ class VolunteerMainScreenState extends State<VolunteerMainScreen> {
       VolunteerHomeTab(),
       EventTab(),
       ChildrenTab(),
-      PlaceholderScreen(title: 'Thông báo'),
+      ThongBaoScreen(),
       AccountTab(),
     ];
 

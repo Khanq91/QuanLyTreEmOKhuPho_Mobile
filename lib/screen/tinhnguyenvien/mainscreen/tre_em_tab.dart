@@ -4,7 +4,7 @@ import 'package:mobile/providers/tinh_nguyen_vien.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-import '../detailsscreen/chi_tiet_ho_tro.dart';
+import '../detailsscreen/chi_tiet_phan_phat_qua.dart';
 import '../detailsscreen/chi_tiet_van_dong.dart';
 import '../../other/app_color.dart';
 import '../../other/app_text.dart';
@@ -68,7 +68,7 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
             ),
             Tab(
               icon: Icon(Icons.card_giftcard, size: AppDimensions.iconMD),
-              text: 'Phát hỗ trợ phúc lợi',
+              text: 'Phân phát quà',
             ),
           ],
         ),
@@ -159,7 +159,7 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
               controller: _tabController,
               children: [
                 _buildTreCanVanDongTab(provider),
-                _buildTrePhatHoTroTab(provider),
+                _buildTrePhanPhatQuaTab(provider),
               ],
             ),
           );
@@ -469,10 +469,10 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
     );
   }
 
-  // ============ TAB TRẺ PHÁT HỖ TRỢ PHÚC LỢI ============
+  // ============ TAB TRẺ PHÂN PHÁT QUÀ ============
 
-  Widget _buildTrePhatHoTroTab(VolunteerProvider provider) {
-    if (provider.trePhatHoTro.isEmpty) {
+  Widget _buildTrePhanPhatQuaTab(VolunteerProvider provider) {
+    if (provider.trePhanPhatQua.isEmpty) {
       return Center(
         child: Padding(
           padding: EdgeInsets.all(AppDimensions.spacingXXL),
@@ -500,7 +500,7 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
               ),
               SizedBox(height: AppDimensions.spacingXS),
               Text(
-                'Bạn sẽ nhận được thông báo khi được phân công phát hỗ trợ',
+                'Bạn sẽ nhận được thông báo khi được phân công phát quà',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textHint,
                 ),
@@ -514,47 +514,44 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
 
     return ListView.builder(
       padding: EdgeInsets.all(AppDimensions.spacingMD),
-      itemCount: provider.trePhatHoTro.length,
+      itemCount: provider.trePhanPhatQua.length,
       itemBuilder: (context, index) {
-        final tre = provider.trePhatHoTro[index];
-        return _buildTrePhatHoTroCard(tre);
+        final tre = provider.trePhanPhatQua[index];
+        return _buildTrePhanPhatQuaCard(tre);
       },
     );
   }
 
-  Widget _buildTrePhatHoTroCard(tre) {
-    final age = DateTime.now().year - tre.ngaySinh.year;
+  Widget _buildTrePhanPhatQuaCard(tre) {
+    // final age = DateTime.now().year - tre.ngaySinh.year;
+    final ngaySinhDateTime = DateTime.parse(tre.ngaySinh);
+    final age = DateTime.now().year - ngaySinhDateTime.year;
+
 
     Color getStatusColor() {
-      switch (tre.trangThaiPhat.toLowerCase()) {
-        case 'đã phát thành công':
+      switch (tre.trangThai.toLowerCase()) {
+        case 'đã nhận':
           return AppColors.success;
+        case 'đang tiến hành':
+          return AppColors.info;
         case 'chưa nhận':
           return AppColors.warning;
         case 'lần đầu':
-        case 'chưa phát':
           return AppColors.info;
         default:
           return AppColors.textDisabled;
       }
     }
 
-    IconData getLoaiIcon() {
-      final loai = tre.loaiHoTro.toLowerCase();
-      if (loai.contains('học')) return Icons.school;
-      if (loai.contains('quà')) return Icons.card_giftcard;
-      if (loai.contains('trang phục')) return Icons.checkroom;
-      return Icons.favorite;
-    }
-
     IconData getStatusIcon() {
-      switch (tre.trangThaiPhat.toLowerCase()) {
-        case 'đã phát thành công':
+      switch (tre.trangThai.toLowerCase()) {
+        case 'đã nhận':
           return Icons.check_circle;
+        case 'đang tiến hành':
+          return Icons.pending;
         case 'chưa nhận':
           return Icons.schedule;
         case 'lần đầu':
-        case 'chưa phát':
           return Icons.fiber_new;
         default:
           return Icons.help_outline;
@@ -587,7 +584,9 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChiTietTreHoTroScreen(hoTroId: tre.hoTroID),
+                builder: (context) => ChiTietPhanPhatQuaScreen(
+                  phanPhatId: tre.phanPhatID,
+                ),
               ),
             );
           },
@@ -597,7 +596,7 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Avatar with border
+                // Avatar trẻ with border
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
@@ -628,6 +627,7 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Tên trẻ
                       Text(
                         tre.hoTen,
                         style: AppTextStyles.headingSmall,
@@ -662,6 +662,30 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
                       ),
                       SizedBox(height: AppDimensions.spacingXS),
 
+                      // Tên quà tặng
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.card_giftcard,
+                            size: AppDimensions.iconXS,
+                            color: AppColors.accent,
+                          ),
+                          SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              tre.tenQua,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.accent,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: AppDimensions.spacingXS),
+
                       // Địa chỉ
                       Row(
                         children: [
@@ -673,7 +697,7 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
                           SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              tre.diaChi,
+                              '${tre.tenKhuPho} - ${tre.diaChi}',
                               style: AppTextStyles.bodySmall,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -688,41 +712,7 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
                         spacing: AppDimensions.spacingXS,
                         runSpacing: AppDimensions.spacingXS,
                         children: [
-                          // Loại hỗ trợ
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: AppDimensions.spacingSM,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.accentOverlay,
-                              borderRadius: BorderRadius.circular(AppDimensions.chipRadius),
-                              border: Border.all(
-                                color: AppColors.accent.withOpacity(0.5),
-                                width: AppDimensions.borderMedium,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  getLoaiIcon(),
-                                  size: 14,
-                                  color: AppColors.accent,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  tre.loaiHoTro,
-                                  style: AppTextStyles.labelSmall.copyWith(
-                                    color: AppColors.accent,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Trạng thái phát
+                          // Trạng thái
                           Container(
                             padding: EdgeInsets.symmetric(
                               horizontal: AppDimensions.spacingSM,
@@ -746,7 +736,7 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
                                 ),
                                 SizedBox(width: 4),
                                 Text(
-                                  tre.trangThaiPhat,
+                                  tre.trangThai,
                                   style: AppTextStyles.labelSmall.copyWith(
                                     color: statusColor,
                                     fontWeight: FontWeight.bold,
@@ -756,40 +746,79 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
                             ),
                           ),
 
-                          // Ngày hẹn lại (nếu có)
-                          if (tre.ngayHenLai != null)
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: AppDimensions.spacingSM,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.errorOverlay,
-                                borderRadius: BorderRadius.circular(AppDimensions.chipRadius),
-                                border: Border.all(
-                                  color: AppColors.error.withOpacity(0.5),
-                                  width: AppDimensions.borderMedium,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.calendar_today,
-                                    size: 14,
-                                    color: AppColors.error,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'Hẹn ${DateFormat('dd/MM').format(tre.ngayHenLai!)}',
-                                    style: AppTextStyles.labelSmall.copyWith(
-                                      color: AppColors.error,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                          // Số lượng
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: AppDimensions.spacingSM,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondaryOverlay,
+                              borderRadius: BorderRadius.circular(AppDimensions.chipRadius),
+                              border: Border.all(
+                                color: AppColors.secondary.withOpacity(0.5),
+                                width: AppDimensions.borderMedium,
                               ),
                             ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.inventory_2_outlined,
+                                  size: 14,
+                                  color: AppColors.secondary,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'SL: ${tre.soLuongNhan}',
+                                  style: AppTextStyles.labelSmall.copyWith(
+                                    color: AppColors.secondary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Ngày phát
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: AppDimensions.spacingSM,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryOverlay,
+                              borderRadius: BorderRadius.circular(AppDimensions.chipRadius),
+                              border: Border.all(
+                                color: AppColors.primary.withOpacity(0.5),
+                                width: AppDimensions.borderMedium,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 14,
+                                  color: AppColors.primary,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  DateFormat('dd/MM/yyyy').format(
+                                    DateTime(
+                                      ngaySinhDateTime.year,
+                                      ngaySinhDateTime.month,
+                                      ngaySinhDateTime.day,
+                                    ),
+                                  ),
+                                  style: AppTextStyles.labelSmall.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ],

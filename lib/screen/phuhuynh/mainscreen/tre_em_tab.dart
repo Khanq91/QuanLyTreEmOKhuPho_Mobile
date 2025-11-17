@@ -10,7 +10,7 @@ import '../../other/app_text.dart';
 import '../../other/app_dimension.dart';
 import '../detailsscreen/chi_tiet_phieu_hoc_tap_screen.dart';
 import '../detailsscreen/thong_tin_tre_em_screen.dart';
-import '../detailsscreen/xem_anh_screen.dart';
+import '../../other/xem_anh_screen.dart';
 
 class ParentChildrenScreen extends StatefulWidget {
   const ParentChildrenScreen({Key? key}) : super(key: key);

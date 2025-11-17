@@ -13,11 +13,8 @@ import '../../auth/auth.dart';
 import '../../other/splash_screen.dart';
 import '../detailsscreen/danh_sach_con_screen.dart';
 import '../detailsscreen/danh_sach_phu_huynh_screen.dart';
-import '../detailsscreen/doi_mat_khau_dialog.dart';
+import '../../auth/doi_mat_khau_dialog.dart';
 
-/// ============================================================================
-/// REDESIGNED TÀI KHOẢN SCREEN - Modern Soft & Friendly
-/// ============================================================================
 class TabTaiKhoanScreen extends StatelessWidget {
   const TabTaiKhoanScreen({Key? key}) : super(key: key);
 

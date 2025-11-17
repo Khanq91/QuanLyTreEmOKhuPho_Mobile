@@ -8,9 +8,6 @@ import '../../../models/tab_thong_bao_ph.dart';
 import '../../../providers/phu_huynh.dart';
 import '../detailsscreen/chi_tiet_su_kien_sk_screen.dart';
 
-/// ============================================================================
-/// REDESIGNED THÔNG BÁO SCREEN - Modern Soft & Friendly
-/// ============================================================================
 class TabThongBaoScreen extends StatefulWidget {
   const TabThongBaoScreen({Key? key}) : super(key: key);
 

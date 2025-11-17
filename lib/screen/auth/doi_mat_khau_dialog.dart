@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../providers/auth.dart';
-import '../../other/app_color.dart';
-import '../../other/app_text.dart';
-import '../../other/app_dimension.dart';
-import '../../../providers/phu_huynh.dart';
+import '../../providers/auth.dart';
+import '../other/app_color.dart';
+import '../other/app_text.dart';
+import '../other/app_dimension.dart';
+import '../../providers/phu_huynh.dart';
 
 class DoiMatKhauDialog extends StatefulWidget {
   const DoiMatKhauDialog({Key? key}) : super(key: key);

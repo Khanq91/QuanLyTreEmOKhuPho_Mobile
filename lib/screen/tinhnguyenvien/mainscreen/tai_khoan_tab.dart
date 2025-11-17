@@ -11,7 +11,8 @@ import '../../../providers/auth.dart';
 import '../../other/app_color.dart';
 import '../../other/app_dimension.dart';
 import '../../other/app_text.dart';
-import '../../phuhuynh/detailsscreen/doi_mat_khau_dialog.dart';
+import '../../auth/doi_mat_khau_dialog.dart';
+import '../detailsscreen/chi_tiet_tinh_nguyen_vien.dart';
 import '../detailsscreen/lich_su_hoat_dong.dart';
 import '../detailsscreen/lich_trong_screen.dart';
 
@@ -281,8 +282,20 @@ class _AccountTabState extends State<AccountTab> {
               _MenuItem(
                 icon: Icons.person_outline,
                 title: 'Thông tin tài khoản',
-                subtitle: 'Xem chi tiết thông tin cá nhân',
-                onTap: () => _showProfileDetail(provider),
+                subtitle: 'Xem và chỉnh sửa thông tin cá nhân',
+                onTap: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ChinhSuaThongTinScreen(),
+                    ),
+                  );
+
+                  // Nếu có thay đổi (result == true), reload profile
+                  if (result == true) {
+                    _loadData();
+                  }
+                },
               ),
               _MenuItem(
                 icon: Icons.calendar_today,

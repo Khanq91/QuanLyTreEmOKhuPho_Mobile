@@ -80,21 +80,232 @@ class TreEmPhatHoTro {
 
 class DanhSachTreEmResponse {
   final List<TreEmCanVanDong> treCanVanDong;
-  final List<TreEmPhatHoTro> trePhatHoTro;
+  final List<TreEmPhanPhatQua> trePhanPhatQua;
 
   DanhSachTreEmResponse({
     required this.treCanVanDong,
-    required this.trePhatHoTro,
+    required this.trePhanPhatQua,
   });
 
   factory DanhSachTreEmResponse.fromJson(Map<String, dynamic> json) {
     return DanhSachTreEmResponse(
       treCanVanDong: (json['treCanVanDong'] as List)
-          .map((e) => TreEmCanVanDong.fromJson(e))
+          .map((item) => TreEmCanVanDong.fromJson(item))
           .toList(),
-      trePhatHoTro: (json['trePhatHoTro'] as List)
-          .map((e) => TreEmPhatHoTro.fromJson(e))
+      trePhanPhatQua: (json['trePhanPhatQua'] as List)
+          .map((item) => TreEmPhanPhatQua.fromJson(item))
           .toList(),
+    );
+  }
+}
+
+class TreEmPhanPhatQua {
+  final int phanPhatID;
+  final int treEmID;
+  final String hoTen;
+  final String ngaySinh;
+  final String gioiTinh;
+  final String diaChi;
+  final String? anh;
+
+  final int quaTangUngHoID;
+  final String tenQua;
+  final String moTaQua;
+  final String? anhQua;
+
+  final int suKienID;
+  final String tenSuKien;
+
+  final int soLuongNhan;
+  final String ngayPhanPhat;
+  final String nguoiPhanPhat;
+  final String trangThai;
+  final String? ghiChu;
+
+  final String tenKhuPho;
+
+  TreEmPhanPhatQua({
+    required this.phanPhatID,
+    required this.treEmID,
+    required this.hoTen,
+    required this.ngaySinh,
+    required this.gioiTinh,
+    required this.diaChi,
+    this.anh,
+    required this.quaTangUngHoID,
+    required this.tenQua,
+    required this.moTaQua,
+    this.anhQua,
+    required this.suKienID,
+    required this.tenSuKien,
+    required this.soLuongNhan,
+    required this.ngayPhanPhat,
+    required this.nguoiPhanPhat,
+    required this.trangThai,
+    this.ghiChu,
+    required this.tenKhuPho,
+  });
+
+  factory TreEmPhanPhatQua.fromJson(Map<String, dynamic> json) {
+    return TreEmPhanPhatQua(
+      phanPhatID: json['phanPhatID'],
+      treEmID: json['treEmID'],
+      hoTen: json['hoTen'],
+      ngaySinh: json['ngaySinh'],
+      gioiTinh: json['gioiTinh'],
+      diaChi: json['diaChi'],
+      anh: json['anh'],
+      quaTangUngHoID: json['quaTangUngHoID'],
+      tenQua: json['tenQua'],
+      moTaQua: json['moTaQua'],
+      anhQua: json['anhQua'],
+      suKienID: json['suKienID'],
+      tenSuKien: json['tenSuKien'],
+      soLuongNhan: json['soLuongNhan'],
+      ngayPhanPhat: json['ngayPhanPhat'],
+      nguoiPhanPhat: json['nguoiPhanPhat'],
+      trangThai: json['trangThai'],
+      ghiChu: json['ghiChu'],
+      tenKhuPho: json['tenKhuPho'],
+    );
+  }
+}
+
+class ChiTietTreEmPhanPhatQua {
+  final int treEmID;
+  final String hoTen;
+  final String ngaySinh;
+  final String gioiTinh;
+  final String tonGiao;
+  final String danToc;
+  final String? anh;
+
+  final List<ThongTinPhuHuynh> danhSachPhuHuynh;
+
+  final int phanPhatID;
+  final int quaTangUngHoID;
+  final String tenQua;
+  final String moTaQua;
+  final String? anhQua;
+  final double donGia;
+  final int soLuongNhan;
+  final String ngayPhanPhat;
+  final String nguoiPhanPhat;
+  final String trangThai;
+  final String? ghiChu;
+
+  final int suKienID;
+  final String tenSuKien;
+  final String ngayBatDau;
+  final String ngayKetThuc;
+  final String diaDiem;
+
+  final int soLuongTong;
+  final int soLuongConLai;
+  final String doiTuongNhan;
+
+  final List<LichSuPhanPhatQua> lichSuPhanPhatQua;
+
+  ChiTietTreEmPhanPhatQua({
+    required this.treEmID,
+    required this.hoTen,
+    required this.ngaySinh,
+    required this.gioiTinh,
+    required this.tonGiao,
+    required this.danToc,
+    this.anh,
+    required this.danhSachPhuHuynh,
+    required this.phanPhatID,
+    required this.quaTangUngHoID,
+    required this.tenQua,
+    required this.moTaQua,
+    this.anhQua,
+    required this.donGia,
+    required this.soLuongNhan,
+    required this.ngayPhanPhat,
+    required this.nguoiPhanPhat,
+    required this.trangThai,
+    this.ghiChu,
+    required this.suKienID,
+    required this.tenSuKien,
+    required this.ngayBatDau,
+    required this.ngayKetThuc,
+    required this.diaDiem,
+    required this.soLuongTong,
+    required this.soLuongConLai,
+    required this.doiTuongNhan,
+    required this.lichSuPhanPhatQua,
+  });
+
+  factory ChiTietTreEmPhanPhatQua.fromJson(Map<String, dynamic> json) {
+    return ChiTietTreEmPhanPhatQua(
+      treEmID: json['treEmID'],
+      hoTen: json['hoTen'],
+      ngaySinh: json['ngaySinh'],
+      gioiTinh: json['gioiTinh'],
+      tonGiao: json['tonGiao'],
+      danToc: json['danToc'],
+      anh: json['anh'],
+      danhSachPhuHuynh: (json['danhSachPhuHuynh'] as List)
+          .map((item) => ThongTinPhuHuynh.fromJson(item))
+          .toList(),
+      phanPhatID: json['phanPhatID'],
+      quaTangUngHoID: json['quaTangUngHoID'],
+      tenQua: json['tenQua'],
+      moTaQua: json['moTaQua'],
+      anhQua: json['anhQua'],
+      donGia: (json['donGia'] as num).toDouble(),
+      soLuongNhan: json['soLuongNhan'],
+      ngayPhanPhat: json['ngayPhanPhat'],
+      nguoiPhanPhat: json['nguoiPhanPhat'],
+      trangThai: json['trangThai'],
+      ghiChu: json['ghiChu'],
+      suKienID: json['suKienID'],
+      tenSuKien: json['tenSuKien'],
+      ngayBatDau: json['ngayBatDau'],
+      ngayKetThuc: json['ngayKetThuc'],
+      diaDiem: json['diaDiem'],
+      soLuongTong: json['soLuongTong'],
+      soLuongConLai: json['soLuongConLai'],
+      doiTuongNhan: json['doiTuongNhan'],
+      lichSuPhanPhatQua: (json['lichSuPhanPhatQua'] as List)
+          .map((item) => LichSuPhanPhatQua.fromJson(item))
+          .toList(),
+    );
+  }
+}
+
+class LichSuPhanPhatQua {
+  final int phanPhatID;
+  final String tenQua;
+  final String tenSuKien;
+  final int soLuongNhan;
+  final String ngayPhanPhat;
+  final String trangThai;
+  final String? ghiChu;
+  final String? anhQua;
+
+  LichSuPhanPhatQua({
+    required this.phanPhatID,
+    required this.tenQua,
+    required this.tenSuKien,
+    required this.soLuongNhan,
+    required this.ngayPhanPhat,
+    required this.trangThai,
+    this.ghiChu,
+    this.anhQua,
+  });
+
+  factory LichSuPhanPhatQua.fromJson(Map<String, dynamic> json) {
+    return LichSuPhanPhatQua(
+      phanPhatID: json['phanPhatID'],
+      tenQua: json['tenQua'],
+      tenSuKien: json['tenSuKien'],
+      soLuongNhan: json['soLuongNhan'],
+      ngayPhanPhat: json['ngayPhanPhat'],
+      trangThai: json['trangThai'],
+      ghiChu: json['ghiChu'],
+      anhQua: json['anhQua'],
     );
   }
 }
@@ -296,5 +507,28 @@ class ChiTietTreEmHoTro {
           .map((e) => LichSuHoTro.fromJson(e))
           .toList(),
     );
+  }
+}
+
+class CapNhatPhanPhatQuaRequest {
+  final int phanPhatID;
+  final String trangThai;
+  final String ngayPhanPhat;
+  final String? ghiChu;
+
+  CapNhatPhanPhatQuaRequest({
+    required this.phanPhatID,
+    required this.trangThai,
+    required this.ngayPhanPhat,
+    this.ghiChu,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'phanPhatID': phanPhatID,
+      'trangThai': trangThai,
+      'ngayPhanPhat': ngayPhanPhat,
+      'ghiChu': ghiChu,
+    };
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/screen/phuhuynh/detailsscreen/xem_anh_screen.dart';
+import 'package:mobile/screen/other/xem_anh_screen.dart';
 import '../../../models/tab_con_toi.dart';
 import '../../other/app_color.dart';
 import '../../other/app_text.dart';
