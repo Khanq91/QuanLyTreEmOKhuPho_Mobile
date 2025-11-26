@@ -412,7 +412,8 @@ class _LichTrongScreenState extends State<LichTrongScreen> {
       'Thứ 7',
       'Chủ nhật'
     ];
-    final sessions = ['Sáng', 'Chiều', 'Tối'];
+    // final sessions = ['Sáng', 'Chiều', 'Tối'];
+    final sessions = ['Sáng', 'Chiều'];
 
     return Card(
       elevation: AppDimensions.elevationXS,

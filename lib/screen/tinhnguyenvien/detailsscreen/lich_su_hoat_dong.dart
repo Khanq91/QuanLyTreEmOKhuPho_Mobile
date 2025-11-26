@@ -7,6 +7,8 @@ import '../../../providers/tinh_nguyen_vien.dart';
 import '../../other/app_color.dart';
 import '../../other/app_dimension.dart';
 import '../../other/app_text.dart';
+import '../../other/xem_anh_screen.dart';
+import 'chi_tiet_su_kien.dart';
 
 class LichSuHoatDongScreen extends StatefulWidget {
   const LichSuHoatDongScreen({Key? key}) : super(key: key);
@@ -83,70 +85,70 @@ class _LichSuHoatDongScreenState extends State<LichSuHoatDongScreen>
         ),
         elevation: 0,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(110),
+          preferredSize: const Size.fromHeight(70),
           child: Column(
             children: [
               // Search Bar
-              Padding(
-                padding: AppDimensions.paddingSymmetric(
-                  horizontal: AppDimensions.spacingMD,
-                  vertical: AppDimensions.spacingSM,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: AppDimensions.radiusCircular(
-                      AppDimensions.radiusFull,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    style: AppTextStyles.bodyMedium,
-                    decoration: InputDecoration(
-                      hintText: 'Tìm theo tên khu phố...',
-                      hintStyle: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textHint,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search_rounded,
-                        color: AppColors.textSecondary,
-                        size: AppDimensions.iconMD,
-                      ),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                        icon: Icon(
-                          Icons.clear_rounded,
-                          color: AppColors.textSecondary,
-                          size: AppDimensions.iconSM,
-                        ),
-                        onPressed: () {
-                          setState(() => _searchController.clear());
-                          context.read<VolunteerProvider>().setFilterKhuPho(null);
-                        },
-                      )
-                          : null,
-                      filled: false,
-                      border: InputBorder.none,
-                      contentPadding: AppDimensions.paddingSymmetric(
-                        horizontal: AppDimensions.spacingMD,
-                        vertical: AppDimensions.spacingSM,
-                      ),
-                    ),
-                    onSubmitted: (value) {
-                      context.read<VolunteerProvider>().setFilterKhuPho(
-                        value.isEmpty ? null : value,
-                      );
-                    },
-                  ),
-                ),
-              ),
+              // Padding(
+              //   padding: AppDimensions.paddingSymmetric(
+              //     horizontal: AppDimensions.spacingMD,
+              //     vertical: AppDimensions.spacingSM,
+              //   ),
+              //   child: Container(
+              //     decoration: BoxDecoration(
+              //       color: AppColors.surface,
+              //       borderRadius: AppDimensions.radiusCircular(
+              //         AppDimensions.radiusFull,
+              //       ),
+              //       boxShadow: [
+              //         BoxShadow(
+              //           color: Colors.black.withOpacity(0.05),
+              //           blurRadius: 8,
+              //           offset: const Offset(0, 2),
+              //         ),
+              //       ],
+              //     ),
+              //     child: TextField(
+              //       controller: _searchController,
+              //       style: AppTextStyles.bodyMedium,
+              //       decoration: InputDecoration(
+              //         hintText: 'Tìm theo tên khu phố...',
+              //         hintStyle: AppTextStyles.bodyMedium.copyWith(
+              //           color: AppColors.textHint,
+              //         ),
+              //         prefixIcon: Icon(
+              //           Icons.search_rounded,
+              //           color: AppColors.textSecondary,
+              //           size: AppDimensions.iconMD,
+              //         ),
+              //         suffixIcon: _searchController.text.isNotEmpty
+              //             ? IconButton(
+              //           icon: Icon(
+              //             Icons.clear_rounded,
+              //             color: AppColors.textSecondary,
+              //             size: AppDimensions.iconSM,
+              //           ),
+              //           onPressed: () {
+              //             setState(() => _searchController.clear());
+              //             context.read<VolunteerProvider>().setFilterKhuPho(null);
+              //           },
+              //         )
+              //             : null,
+              //         filled: false,
+              //         border: InputBorder.none,
+              //         contentPadding: AppDimensions.paddingSymmetric(
+              //           horizontal: AppDimensions.spacingMD,
+              //           vertical: AppDimensions.spacingSM,
+              //         ),
+              //       ),
+              //       onSubmitted: (value) {
+              //         context.read<VolunteerProvider>().setFilterKhuPho(
+              //           value.isEmpty ? null : value,
+              //         );
+              //       },
+              //     ),
+              //   ),
+              // ),
 
               // Tab Bar
               Container(
@@ -309,6 +311,36 @@ class _LichSuHoatDongScreenState extends State<LichSuHoatDongScreen>
                     Icons.calendar_today_rounded,
                     '${suKien.ngayBatDau != null ? dateFormat.format(suKien.ngayBatDau!) : 'N/A'} - ${suKien.ngayKetThuc != null ? dateFormat.format(suKien.ngayKetThuc!) : 'N/A'}',
                   ),
+
+                  SizedBox(height: AppDimensions.spacingSM),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryLight,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusMD,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                EventDetailScreen(suKienId: suKien.suKienID!),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.event, color: AppColors.textOnPrimary),
+                      label: Text(
+                        "Xem chi tiết",
+                        style: AppTextStyles.labelSmall
+                            .copyWith(color: AppColors.textOnPrimary),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -322,14 +354,16 @@ class _LichSuHoatDongScreenState extends State<LichSuHoatDongScreen>
   // HỖ TRỢ PHÚC LỢI TAB
   // ==========================================================================
   Widget _buildHoTroTab(VolunteerProvider provider) {
-    final hoTroList = provider.lichSuHoatDong!.hoTroPhucLoiDaPhat;
+    final quaList = provider.lichSuHoatDong!.quaDaPhanPhat;
 
-    if (hoTroList.isEmpty) {
+    if (quaList.isEmpty) {
       return _buildEmptyState(
-        message: 'Chưa phát hỗ trợ phúc lợi nào',
+        message: 'Chưa có phân phát quà nào',
         icon: Icons.card_giftcard_outlined,
       );
     }
+
+    final dateFormat = DateFormat('dd/MM/yyyy');
 
     return RefreshIndicator(
       onRefresh: _loadData,
@@ -337,14 +371,13 @@ class _LichSuHoatDongScreenState extends State<LichSuHoatDongScreen>
       child: ListView.builder(
         controller: _scrollController,
         padding: AppDimensions.paddingAll(AppDimensions.spacingMD),
-        itemCount: hoTroList.length + (provider.hasMoreData ? 1 : 0),
+        itemCount: quaList.length + (provider.hasMoreData ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == hoTroList.length) {
+          if (index == quaList.length) {
             return _buildLoadingIndicator();
           }
 
-          final hoTro = hoTroList[index];
-          final dateFormat = DateFormat('dd/MM/yyyy');
+          final item = quaList[index];
 
           return Container(
             margin: AppDimensions.paddingSymmetric(
@@ -370,10 +403,14 @@ class _LichSuHoatDongScreenState extends State<LichSuHoatDongScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ---------------------------
+                  //       TIÊU ĐỀ CARD
+                  // ---------------------------
                   Row(
                     children: [
                       Container(
-                        padding: AppDimensions.paddingAll(AppDimensions.spacingSM),
+                        padding:
+                        AppDimensions.paddingAll(AppDimensions.spacingSM),
                         decoration: BoxDecoration(
                           color: AppColors.successOverlay,
                           borderRadius: AppDimensions.radiusCircular(
@@ -387,82 +424,89 @@ class _LichSuHoatDongScreenState extends State<LichSuHoatDongScreen>
                         ),
                       ),
                       SizedBox(width: AppDimensions.spacingSM),
+
+                      // Tên trẻ | Tên quà
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              hoTro.loaiHoTro,
-                              style: AppTextStyles.headingSmall,
-                            ),
-                            if (hoTro.tenTreEm != null) ...[
-                              SizedBox(height: AppDimensions.spacingXXS),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.child_care_rounded,
-                                    size: AppDimensions.iconXS,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                  SizedBox(width: AppDimensions.spacingXXS),
-                                  Expanded(
-                                    child: Text(
-                                      hoTro.tenTreEm!,
-                                      style: AppTextStyles.bodySmall,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: AppDimensions.paddingSymmetric(
-                          horizontal: AppDimensions.spacingSM,
-                          vertical: AppDimensions.spacingXS,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.successOverlay,
-                          borderRadius: AppDimensions.radiusCircular(
-                            AppDimensions.radiusFull,
-                          ),
-                        ),
                         child: Text(
-                          hoTro.trangThaiPhat ?? 'N/A',
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.success,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          "${item.tenTreEm} | ${item.tenQua}",
+                          style: AppTextStyles.headingSmall,
                         ),
                       ),
                     ],
                   ),
-                  if (hoTro.moTa != null) ...[
-                    SizedBox(height: AppDimensions.spacingSM),
-                    Container(
-                      padding: AppDimensions.paddingAll(AppDimensions.spacingSM),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: AppDimensions.radiusCircular(
-                          AppDimensions.radiusSM,
-                        ),
+                  SizedBox(height: AppDimensions.spacingSM),
+                  if (item.trangThai.isNotEmpty)  ...[
+                    _buildStatusChip(item.trangThai)
+                  ],
+                  SizedBox(height: AppDimensions.spacingSM),
+
+                  // ---------------------------
+                  //        CHI TIẾT QUÀ
+                  // ---------------------------
+                  _buildInfoRow(
+                    Icons.cake,
+                    "Số lượng: ${item.soLuongNhan}",
+                  ),
+
+                  _buildInfoRow(
+                    Icons.calendar_today_rounded,
+                    dateFormat.format(DateTime.parse(item.ngayPhanPhat)),
+                  ),
+
+                  if (item.tenSuKien != null && item.suKienID != null)
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                EventDetailScreen(suKienId: item.suKienID!),
+                          ),
+                        );
+                      },
+                      child: _buildInfoRow(
+                        Icons.event,
+                        item.tenSuKien!,
+                        isLink: true,
                       ),
-                      child: Text(
-                        hoTro.moTa!,
-                        style: AppTextStyles.bodySmall,
+                    ),
+
+                  // ---------------------------
+                  //      NÚT XEM ẢNH
+                  // ---------------------------
+                  if (item.anh.isNotEmpty) ...[
+                    SizedBox(height: AppDimensions.spacingSM),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryLight,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusMD,
+                            ),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ImageViewerScreen(
+                                imageUrl: item.anh,
+                                title: item.tenQua,
+                              ),
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.image, color: AppColors.textOnPrimary),
+                        label: Text(
+                          "Xem ảnh",
+                          style: AppTextStyles.labelSmall
+                              .copyWith(color: AppColors.textOnPrimary),
+                        ),
                       ),
                     ),
                   ],
-                  SizedBox(height: AppDimensions.spacingSM),
-                  _buildInfoRow(
-                    Icons.location_on_rounded,
-                    hoTro.tenKhuPho ?? 'N/A',
-                  ),
-                  _buildInfoRow(
-                    Icons.calendar_today_rounded,
-                    hoTro.ngayCap != null ? dateFormat.format(hoTro.ngayCap!) : 'N/A',
-                  ),
                 ],
               ),
             ),
@@ -471,6 +515,78 @@ class _LichSuHoatDongScreenState extends State<LichSuHoatDongScreen>
       ),
     );
   }
+  Widget _buildStatusChip(String trangThai) {
+    Color color;
+    Color bg;
+
+    switch (trangThai.toLowerCase()) {
+      case "Đã phát":
+      case "đã nhận":
+      case "đã phát thành công":
+        color = AppColors.success;
+        bg = AppColors.successOverlay;
+        break;
+
+      case "chưa phát":
+        color = AppColors.warning;
+        bg = AppColors.warningOverlay;
+        break;
+
+      case "hẹn lại":
+        color = AppColors.info;
+        bg = AppColors.infoOverlay;
+        break;
+
+      default:
+        color = AppColors.textSecondary;
+        bg = AppColors.background;
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: AppDimensions.spacingSM,
+        vertical: AppDimensions.spacingXXS,
+      ),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+      ),
+      child: Text(
+        trangThai,
+        style: AppTextStyles.labelSmall.copyWith(
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  /// Helper row UI (nếu cần link)
+  Widget _buildInfoRow(IconData icon, String text, {bool isLink = false}) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: AppDimensions.spacingXS),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: AppDimensions.iconSM,
+            color: isLink ? AppColors.primary : AppColors.textSecondary,
+          ),
+          SizedBox(width: AppDimensions.spacingXS),
+          Expanded(
+            child: Text(
+              text,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: isLink ? AppColors.primary : AppColors.textSecondary,
+                decoration: isLink ? TextDecoration.underline : null,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   // ==========================================================================
   // VẬN ĐỘNG TRẺ EM TAB
@@ -616,17 +732,17 @@ class _LichSuHoatDongScreenState extends State<LichSuHoatDongScreen>
                         _buildInfoRow(
                           Icons.report_problem_rounded,
                           'Hoàn cảnh: ${vanDong.loaiHoanCanh ?? 'N/A'}',
-                          compact: true,
+                          isLink: false,
                         ),
                         _buildInfoRow(
                           Icons.description_rounded,
                           'Lý do: ${vanDong.lyDo ?? 'N/A'}',
-                          compact: true,
+                          isLink: false,
                         ),
                         _buildInfoRow(
                           Icons.check_circle_rounded,
                           'Kết quả: ${vanDong.ketQua ?? 'N/A'}',
-                          compact: true,
+                          isLink: false,
                         ),
                       ],
                     ),
@@ -678,34 +794,6 @@ class _LichSuHoatDongScreenState extends State<LichSuHoatDongScreen>
             ),
           );
         },
-      ),
-    );
-  }
-
-  // ==========================================================================
-  // HELPER WIDGETS
-  // ==========================================================================
-  Widget _buildInfoRow(IconData icon, String text, {bool compact = false}) {
-    return Padding(
-      padding: AppDimensions.paddingSymmetric(
-        vertical: compact ? 2 : AppDimensions.spacingXS,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            size: AppDimensions.iconXS,
-            color: AppColors.textSecondary,
-          ),
-          SizedBox(width: AppDimensions.spacingXS),
-          Expanded(
-            child: Text(
-              text,
-              style: AppTextStyles.bodySmall,
-            ),
-          ),
-        ],
       ),
     );
   }

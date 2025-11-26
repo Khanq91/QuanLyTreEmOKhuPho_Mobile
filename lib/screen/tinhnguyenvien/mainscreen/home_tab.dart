@@ -1,12 +1,15 @@
 // screens/tinh_nguyen_vien/tnv_home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mobile/screen/tinhnguyenvien/detailsscreen/chi_tiet_su_kien.dart';
+import 'package:mobile/screen/tinhnguyenvien/mainscreen/main_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import '../../../models/dashboard_tnv.dart';
 import '../../../providers/tinh_nguyen_vien.dart';
 import '../../other/xem_anh_screen.dart';
+import '../detailsscreen/lich_su_hoat_dong.dart';
 import '../detailsscreen/lich_trong_screen.dart';
 import '../../other/app_color.dart';
 import '../../other/app_text.dart';
@@ -317,7 +320,10 @@ class _VolunteerHomeTabState extends State<VolunteerHomeTab> {
             if (events.length >= 3)
               TextButton(
                 onPressed: () {
-                  DefaultTabController.of(context).animateTo(1);
+                  // DefaultTabController.of(context).animateTo(1);
+
+                  final volunteerState = context.findAncestorStateOfType<VolunteerMainScreenState>();
+                  volunteerState?.navigateToTab(1);
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.primary,
@@ -391,6 +397,7 @@ class _VolunteerHomeTabState extends State<VolunteerHomeTab> {
     Color backgroundColor;
     IconData statusIcon;
     String statusText;
+    final eventID = event.suKienId;
 
     switch (event.trangThai) {
       case 'Sắp diễn ra':
@@ -435,7 +442,12 @@ class _VolunteerHomeTabState extends State<VolunteerHomeTab> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            // TODO: Navigate to event detail
+            // TODO: Navigate to event
+            print('navigate to EventDetailScreen... with eventID=$eventID');
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EventDetailScreen(suKienId: eventID)),
+            );
           },
           borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
           child: Padding(
@@ -607,6 +619,11 @@ class _VolunteerHomeTabState extends State<VolunteerHomeTab> {
               TextButton(
                 onPressed: () {
                   // TODO: Navigate to full history
+                  print('Navigate to LichSuHoatDongScreen...');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LichSuHoatDongScreen()),
+                  );
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.primary,
@@ -770,6 +787,11 @@ class _VolunteerHomeTabState extends State<VolunteerHomeTab> {
         child: InkWell(
           onTap: () {
             // TODO: Navigate to event detail
+            print('navigate to EventDetailScreen... with eventID=${event.suKienId}');
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EventDetailScreen(suKienId: event.suKienId)),
+            );
           },
           borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
           child: Padding(
@@ -969,7 +991,8 @@ class _VolunteerHomeTabState extends State<VolunteerHomeTab> {
   Widget _buildLichTrongGrid(LichTrongModel lichTrong) {
     final days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
     final fullDayNames = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
-    final sessions = ['Sáng', 'Chiều', 'Tối'];
+    // final sessions = ['Sáng', 'Chiều', 'Tối'];
+    final sessions = ['Sáng', 'Chiều'];
 
     return Column(
       children: [

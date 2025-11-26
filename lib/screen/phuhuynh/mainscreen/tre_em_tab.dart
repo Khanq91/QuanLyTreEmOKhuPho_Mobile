@@ -608,9 +608,12 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
     //     Icons.card_giftcard,
     //   );
     // }
+    if (quaData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return _QuaDaNhanTabContent(
-      quaData: quaData!,
+      quaData: quaData,
       treEmId: treEmId,
     );
   }

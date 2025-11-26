@@ -187,20 +187,24 @@ class ChiTietLichTrong {
 // File: models/lich_su_hoat_dong.dart
 class LichSuHoatDong {
   final List<SuKienDaThamGia> suKienDaThamGia;
-  final List<HoTroPhucLoiDaPhat> hoTroPhucLoiDaPhat;
+  // final List<HoTroPhucLoiDaPhat> hoTroPhucLoiDaPhat;
+  final List<QuaPhanPhatInfo> quaDaPhanPhat;
   final List<TreEmDaVanDong> treEmDaVanDong;
   final int totalSuKien;
-  final int totalHoTro;
+  final int totalQuaPhanPhat;
+  // final int totalHoTro;
   final int totalVanDong;
   final int page;
   final int pageSize;
 
   LichSuHoatDong({
     required this.suKienDaThamGia,
-    required this.hoTroPhucLoiDaPhat,
+    // required this.hoTroPhucLoiDaPhat,
+    required this.quaDaPhanPhat,
     required this.treEmDaVanDong,
     required this.totalSuKien,
-    required this.totalHoTro,
+    required this.totalQuaPhanPhat,
+    // required this.totalHoTro,
     required this.totalVanDong,
     required this.page,
     required this.pageSize,
@@ -211,14 +215,17 @@ class LichSuHoatDong {
       suKienDaThamGia: (json['suKienDaThamGia'] as List)
           .map((e) => SuKienDaThamGia.fromJson(e))
           .toList(),
-      hoTroPhucLoiDaPhat: (json['hoTroPhucLoiDaPhat'] as List)
-          .map((e) => HoTroPhucLoiDaPhat.fromJson(e))
+      // hoTroPhucLoiDaPhat: (json['hoTroPhucLoiDaPhat'] as List)
+      //     .map((e) => HoTroPhucLoiDaPhat.fromJson(e))
+      //     .toList(),
+      quaDaPhanPhat: (json['quaDaPhanPhat'] as List)
+          .map((e) => QuaPhanPhatInfo.fromJson(e))
           .toList(),
       treEmDaVanDong: (json['treEmDaVanDong'] as List)
           .map((e) => TreEmDaVanDong.fromJson(e))
           .toList(),
       totalSuKien: json['totalSuKien'],
-      totalHoTro: json['totalHoTro'],
+      totalQuaPhanPhat: json['totalQuaPhanPhat'],
       totalVanDong: json['totalVanDong'],
       page: json['page'],
       pageSize: json['pageSize'],
@@ -286,6 +293,53 @@ class HoTroPhucLoiDaPhat {
       tenTreEm: json['tenTreEm'],
       tenKhuPho: json['tenKhuPho'],
       trangThaiPhat: json['trangThaiPhat'],
+    );
+  }
+}
+
+class QuaPhanPhatInfo {
+  final int phanPhatID;
+  final String tenQua;
+  final String moTa;
+  final int soLuongNhan;
+  final String ngayPhanPhat;
+  final String nguoiPhanPhat;
+  final String trangThai;
+  final String anh;
+  final int? suKienID;
+  final String? tenSuKien;
+  final String? tenTreEm;
+  final int? treEmId;
+
+  QuaPhanPhatInfo({
+    required this.phanPhatID,
+    required this.tenQua,
+    required this.moTa,
+    required this.soLuongNhan,
+    required this.ngayPhanPhat,
+    required this.nguoiPhanPhat,
+    required this.trangThai,
+    required this.anh,
+    this.suKienID,
+    this.tenSuKien,
+    this.tenTreEm,
+    this.treEmId,
+  });
+
+  factory QuaPhanPhatInfo.fromJson(Map<String, dynamic> json) {
+    return QuaPhanPhatInfo(
+      phanPhatID: json['phanPhatID'] ?? 0,
+      tenQua: json['tenQua'] ?? '',
+      moTa: json['moTa'] ?? '',
+      soLuongNhan: json['soLuongNhan'] ?? 1,
+      ngayPhanPhat: json['ngayPhanPhat'] ?? '',
+      nguoiPhanPhat: json['nguoiPhanPhat'] ?? '',
+      trangThai: json['trangThai'] ?? '',
+      anh: json['anh'] ?? '',
+      suKienID: json['suKienID'],
+      tenSuKien: json['tenSuKien'],
+      tenTreEm: json['tenTreEm'],
+      treEmId: json['treEmId'],
     );
   }
 }

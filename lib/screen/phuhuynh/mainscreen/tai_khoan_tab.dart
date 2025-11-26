@@ -10,6 +10,7 @@ import '../../other/app_dimension.dart';
 import '../../../models/tab_tai_khoan_ph.dart';
 import '../../../providers/phu_huynh.dart';
 import '../../auth/auth.dart';
+import '../../other/dangxuat_function.dart';
 import '../../other/splash_screen.dart';
 import '../detailsscreen/danh_sach_con_screen.dart';
 import '../detailsscreen/danh_sach_phu_huynh_screen.dart';
@@ -75,11 +76,12 @@ class TabTaiKhoanScreen extends StatelessWidget {
       width: double.infinity,
       padding: AppDimensions.paddingAll(AppDimensions.spacingXL),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: AppColors.primaryGradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: AppColors.primary,
+        // gradient: LinearGradient(
+        //   colors: AppColors.primaryGradient,
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        // ),
       ),
       child: Column(
         children: [
@@ -447,7 +449,7 @@ class TabTaiKhoanScreen extends StatelessWidget {
         print("Kết thúc upload ảnh...");
       } catch (e) {
         Navigator.pop(context); // Close loading
-        _showErrorDialog(context, 'Không thể tải ảnh lên. Vui lòng thử lại.');
+        showErrorDialog(context, 'Không thể tải ảnh lên. Vui lòng thử lại.');
       }
     }
   }
@@ -606,6 +608,7 @@ class TabTaiKhoanScreen extends StatelessWidget {
   // ==========================================================================
   // ĐĂNG XUẤT DIALOG
   // ==========================================================================
+
   void _showDangXuatDialog(BuildContext context, PhuHuynhProvider provider) {
     showDialog(
       context: context,
@@ -615,274 +618,314 @@ class TabTaiKhoanScreen extends StatelessWidget {
             AppDimensions.dialogRadius,
           ),
         ),
-        child: Padding(
-          padding: AppDimensions.paddingAll(AppDimensions.spacingXL),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icon
-              Container(
-                padding: AppDimensions.paddingAll(AppDimensions.spacingMD),
-                decoration: BoxDecoration(
-                  color: AppColors.errorOverlay,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.logout,
-                  size: AppDimensions.iconXL,
-                  color: AppColors.error,
-                ),
-              ),
-              SizedBox(height: AppDimensions.spacingMD),
-
-              // Title
-              Text(
-                'Xác nhận đăng xuất',
-                style: AppTextStyles.headingMedium,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: AppDimensions.spacingXS),
-
-              // Content
-              Text(
-                'Bạn có chắc chắn muốn đăng xuất?',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: AppDimensions.spacingXL),
-
-              // Buttons
-              Row(
+        backgroundColor: AppColors.surface,
+        elevation: AppDimensions.elevationLG,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: AppDimensions.paddingAll(AppDimensions.spacingXXL),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.textSecondary,
-                        side: BorderSide(
-                          color: AppColors.divider,
-                          width: AppDimensions.borderThin,
-                        ),
-                        padding: AppDimensions.paddingSymmetric(
-                          vertical: AppDimensions.spacingSM,
-                        ),
-                        shape: RoundedRectangleBorder(
+                  // Header với icon và title
+                  Column(
+                    children: [
+                      // Icon container
+                      Container(
+                        width: AppDimensions.iconXL,
+                        height: AppDimensions.iconXL,
+                        decoration: BoxDecoration(
+                          color: AppColors.errorOverlay,
                           borderRadius: AppDimensions.radiusCircular(
-                            AppDimensions.buttonRadius,
+                            AppDimensions.radiusLG,
                           ),
                         ),
+                        child: Icon(
+                          Icons.logout_rounded,
+                          color: AppColors.error,
+                          size: AppDimensions.iconMD,
+                        ),
                       ),
-                      child: Text(
-                        'Hủy',
-                        style: AppTextStyles.labelLarge,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: AppDimensions.spacingSM),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        Navigator.pop(context); // Close dialog
 
-                        // Show loading
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) => Center(
-                            child: CircularProgressIndicator(
-                              color: AppColors.primary,
+                      SizedBox(height: AppDimensions.spacingMD),
+
+                      // Title
+                      Text(
+                        'Xác nhận đăng xuất',
+                        style: AppTextStyles.displaySmall,
+                        textAlign: TextAlign.center,
+                      ),
+
+                      SizedBox(height: AppDimensions.spacingXS),
+
+                      // Content
+                      Text(
+                        'Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: AppDimensions.spacingXXL),
+
+                  // Buttons
+                  Row(
+                    children: [
+                      // Nút Hủy
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.textSecondary,
+                            side: BorderSide(
+                              color: AppColors.divider,
+                              width: AppDimensions.borderMedium,
+                            ),
+                            padding: AppDimensions.paddingSymmetric(
+                              vertical: AppDimensions.spacingMD,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: AppDimensions.radiusCircular(
+                                AppDimensions.buttonRadius,
+                              ),
                             ),
                           ),
-                        );
+                          child: Text(
+                            'Hủy',
+                            style: AppTextStyles.labelLarge.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ),
 
-                        try {
-                          // 1. Đăng xuất từ server
-                          await provider.dangXuat();
+                      SizedBox(width: AppDimensions.spacingMD),
 
-                          // 2. Clear tất cả providers
-                          if (context.mounted) {
-                            await _clearAllUserData(context);
-                          }
+                      // Nút Đăng xuất
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context); // Close dialog
 
-                          // 3. Close loading
-                          if (context.mounted) {
-                            Navigator.of(context).pop();
-                          }
-
-                          // 4. RESTART APP - Quay về SplashScreen
-                          if (context.mounted) {
-                            Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                builder: (context) => SplashScreen(
-                                  auth: context.read<AuthProvider>(),
+                            // Show loading
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => Center(
+                                child: Container(
+                                  padding: AppDimensions.paddingAll(
+                                    AppDimensions.spacingXXL,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    borderRadius: AppDimensions.radiusCircular(
+                                      AppDimensions.radiusLG,
+                                    ),
+                                  ),
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.primary,
+                                    strokeWidth: 3,
+                                  ),
                                 ),
                               ),
-                                  (route) => false,
                             );
-                          }
-                        } catch (e) {
-                          // Close loading
-                          if (context.mounted) {
-                            Navigator.of(context).pop();
-                          }
 
-                          if (context.mounted) {
-                            _showErrorDialog(
-                              context,
-                              'Lỗi đăng xuất. Vui lòng thử lại.',
-                            );
-                          }
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.error,
-                        foregroundColor: AppColors.textOnPrimary,
-                        padding: AppDimensions.paddingSymmetric(
-                          vertical: AppDimensions.spacingSM,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppDimensions.radiusCircular(
-                            AppDimensions.buttonRadius,
+                            try {
+                              // 1. Đăng xuất từ server
+                              await provider.dangXuat();
+
+                              // 2. Clear tất cả providers
+                              if (context.mounted) {
+                                await clearAllUserData(context, "TNV");
+                              }
+
+                              // 3. Close loading
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                              }
+
+                              // 4. RESTART APP - Quay về SplashScreen
+                              if (context.mounted) {
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                    builder: (context) => SplashScreen(
+                                      auth: context.read<AuthProvider>(),
+                                    ),
+                                  ),
+                                      (route) => false,
+                                );
+                              }
+                            } catch (e) {
+                              // Close loading
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                              }
+
+                              if (context.mounted) {
+                                showErrorDialog(
+                                  context,
+                                  'Lỗi đăng xuất. Vui lòng thử lại.',
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.error,
+                            foregroundColor: AppColors.textOnPrimary,
+                            padding: AppDimensions.paddingSymmetric(
+                              vertical: AppDimensions.spacingMD,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: AppDimensions.radiusCircular(
+                                AppDimensions.buttonRadius,
+                              ),
+                            ),
+                            elevation: AppDimensions.elevationSM,
+                          ),
+                          child: Text(
+                            'Đăng xuất',
+                            style: AppTextStyles.labelLarge.copyWith(
+                              color: AppColors.textOnPrimary,
+                            ),
                           ),
                         ),
-                        elevation: AppDimensions.elevationSM,
                       ),
-                      child: Text(
-                        'Đăng xuất',
-                        style: AppTextStyles.labelLarge,
-                      ),
-                    ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
-  // ==========================================================================
-  // ERROR DIALOG
-  // ==========================================================================
-  static void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: AppDimensions.radiusCircular(
-            AppDimensions.dialogRadius,
-          ),
-        ),
-        child: Padding(
-          padding: AppDimensions.paddingAll(AppDimensions.spacingXL),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icon
-              Container(
-                padding: AppDimensions.paddingAll(AppDimensions.spacingMD),
-                decoration: BoxDecoration(
-                  color: AppColors.errorOverlay,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.error_outline,
-                  size: AppDimensions.iconXL,
-                  color: AppColors.error,
-                ),
-              ),
-              SizedBox(height: AppDimensions.spacingMD),
-
-              // Title
-              Text(
-                'Lỗi',
-                style: AppTextStyles.headingMedium,
-              ),
-              SizedBox(height: AppDimensions.spacingXS),
-
-              // Message
-              Text(
-                message,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: AppDimensions.spacingXL),
-
-              // Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.textSecondary,
-                        side: BorderSide(
-                          color: AppColors.divider,
-                          width: AppDimensions.borderThin,
-                        ),
-                        padding: AppDimensions.paddingSymmetric(
-                          vertical: AppDimensions.spacingSM,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppDimensions.radiusCircular(
-                            AppDimensions.buttonRadius,
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        'Đóng',
-                        style: AppTextStyles.labelLarge,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: AppDimensions.spacingSM),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        // Retry logic can be added here
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.textOnPrimary,
-                        padding: AppDimensions.paddingSymmetric(
-                          vertical: AppDimensions.spacingSM,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppDimensions.radiusCircular(
-                            AppDimensions.buttonRadius,
-                          ),
-                        ),
-                        elevation: AppDimensions.elevationSM,
-                      ),
-                      child: Text(
-                        'Thử lại',
-                        style: AppTextStyles.labelLarge,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ==========================================================================
-  // CLEAR USER DATA
-  // ==========================================================================
-  Future<void> _clearAllUserData(BuildContext context) async {
-    // Clear PhuHuynhProvider
-    context.read<PhuHuynhProvider>().clearAll();
-
-    // QUAN TRỌNG: Clear AuthProvider
-    final authProvider = context.read<AuthProvider>();
-    authProvider.clearAuth();
-  }
+  // // ==========================================================================
+  // // ERROR DIALOG
+  // // ==========================================================================
+  // static void _showErrorDialog(BuildContext context, String message) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => Dialog(
+  //       shape: RoundedRectangleBorder(
+  //         borderRadius: AppDimensions.radiusCircular(
+  //           AppDimensions.dialogRadius,
+  //         ),
+  //       ),
+  //       child: Padding(
+  //         padding: AppDimensions.paddingAll(AppDimensions.spacingXL),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             // Icon
+  //             Container(
+  //               padding: AppDimensions.paddingAll(AppDimensions.spacingMD),
+  //               decoration: BoxDecoration(
+  //                 color: AppColors.errorOverlay,
+  //                 shape: BoxShape.circle,
+  //               ),
+  //               child: Icon(
+  //                 Icons.error_outline,
+  //                 size: AppDimensions.iconXL,
+  //                 color: AppColors.error,
+  //               ),
+  //             ),
+  //             SizedBox(height: AppDimensions.spacingMD),
+  //
+  //             // Title
+  //             Text(
+  //               'Lỗi',
+  //               style: AppTextStyles.headingMedium,
+  //             ),
+  //             SizedBox(height: AppDimensions.spacingXS),
+  //
+  //             // Message
+  //             Text(
+  //               message,
+  //               style: AppTextStyles.bodyMedium.copyWith(
+  //                 color: AppColors.textSecondary,
+  //               ),
+  //               textAlign: TextAlign.center,
+  //             ),
+  //             SizedBox(height: AppDimensions.spacingXL),
+  //
+  //             // Buttons
+  //             Row(
+  //               children: [
+  //                 Expanded(
+  //                   child: OutlinedButton(
+  //                     onPressed: () => Navigator.pop(context),
+  //                     style: OutlinedButton.styleFrom(
+  //                       foregroundColor: AppColors.textSecondary,
+  //                       side: BorderSide(
+  //                         color: AppColors.divider,
+  //                         width: AppDimensions.borderThin,
+  //                       ),
+  //                       padding: AppDimensions.paddingSymmetric(
+  //                         vertical: AppDimensions.spacingSM,
+  //                       ),
+  //                       shape: RoundedRectangleBorder(
+  //                         borderRadius: AppDimensions.radiusCircular(
+  //                           AppDimensions.buttonRadius,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     child: Text(
+  //                       'Đóng',
+  //                       style: AppTextStyles.labelLarge,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 SizedBox(width: AppDimensions.spacingSM),
+  //                 Expanded(
+  //                   child: ElevatedButton(
+  //                     onPressed: () {
+  //                       Navigator.pop(context);
+  //                       // Retry logic can be added here
+  //                     },
+  //                     style: ElevatedButton.styleFrom(
+  //                       backgroundColor: AppColors.primary,
+  //                       foregroundColor: AppColors.textOnPrimary,
+  //                       padding: AppDimensions.paddingSymmetric(
+  //                         vertical: AppDimensions.spacingSM,
+  //                       ),
+  //                       shape: RoundedRectangleBorder(
+  //                         borderRadius: AppDimensions.radiusCircular(
+  //                           AppDimensions.buttonRadius,
+  //                         ),
+  //                       ),
+  //                       elevation: AppDimensions.elevationSM,
+  //                     ),
+  //                     child: Text(
+  //                       'Thử lại',
+  //                       style: AppTextStyles.labelLarge,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+  // // CLEAR USER DATA
+  //
+  // // ==========================================================================
+  // // ==========================================================================
+  // Future<void> _clearAllUserData(BuildContext context) async {
+  //   // Clear PhuHuynhProvider
+  //   context.read<PhuHuynhProvider>().clearAll();
+  //
+  //   // QUAN TRỌNG: Clear AuthProvider
+  //   final authProvider = context.read<AuthProvider>();
+  //   authProvider.clearAuth();
+  // }
 }

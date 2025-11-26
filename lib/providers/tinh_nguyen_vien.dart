@@ -648,16 +648,16 @@ class VolunteerProvider extends ChangeNotifier {
               ..._lichSuHoatDong!.suKienDaThamGia,
               ...result.suKienDaThamGia
             ],
-            hoTroPhucLoiDaPhat: [
-              ..._lichSuHoatDong!.hoTroPhucLoiDaPhat,
-              ...result.hoTroPhucLoiDaPhat
+            quaDaPhanPhat: [
+              ..._lichSuHoatDong!.quaDaPhanPhat,
+              ...result.quaDaPhanPhat
             ],
             treEmDaVanDong: [
               ..._lichSuHoatDong!.treEmDaVanDong,
               ...result.treEmDaVanDong
             ],
             totalSuKien: result.totalSuKien,
-            totalHoTro: result.totalHoTro,
+            totalQuaPhanPhat: result.totalQuaPhanPhat,
             totalVanDong: result.totalVanDong,
             page: result.page,
             pageSize: result.pageSize,
@@ -669,7 +669,7 @@ class VolunteerProvider extends ChangeNotifier {
 
       // Check if has more data
       final totalItems = result.suKienDaThamGia.length +
-          result.hoTroPhucLoiDaPhat.length +
+          result.quaDaPhanPhat.length +
           result.treEmDaVanDong.length;
       _hasMoreData = totalItems >= _pageSize;
 

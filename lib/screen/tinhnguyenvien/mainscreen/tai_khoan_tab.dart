@@ -12,6 +12,8 @@ import '../../other/app_color.dart';
 import '../../other/app_dimension.dart';
 import '../../other/app_text.dart';
 import '../../auth/doi_mat_khau_dialog.dart';
+import '../../other/dangxuat_function.dart';
+import '../../other/splash_screen.dart';
 import '../detailsscreen/chi_tiet_tinh_nguyen_vien.dart';
 import '../detailsscreen/lich_su_hoat_dong.dart';
 import '../detailsscreen/lich_trong_screen.dart';
@@ -89,7 +91,7 @@ class _AccountTabState extends State<AccountTab> {
               child: Column(
                 children: [
                   _buildHeader(provider),
-                  SizedBox(height: AppDimensions.spacingMD),
+                  SizedBox(height: AppDimensions.spacingXS),
                   _buildMenuList(provider),
                 ],
               ),
@@ -105,19 +107,11 @@ class _AccountTabState extends State<AccountTab> {
   // ==========================================================================
   Widget _buildHeader(VolunteerProvider provider) {
     final profile = provider.profile!;
-    final dateFormat = DateFormat('dd/MM/yyyy');
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withOpacity(0.8),
-          ],
-        ),
+        color: AppColors.primary,
       ),
       child: SafeArea(
         bottom: false,
@@ -126,86 +120,92 @@ class _AccountTabState extends State<AccountTab> {
           child: Column(
             children: [
               // Avatar
-              Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.textOnPrimary,
-                        width: 3,
+              GestureDetector(
+                onTap: () => _showChangeAvatarDialog(provider),
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.surface,
+                          width: AppDimensions.borderExtraThick,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
+                      child: CircleAvatar(
+                        radius: AppDimensions.avatarXXL / 2,
+                        backgroundColor: AppColors.surface,
+                        backgroundImage: profile.anh != null
+                            ? NetworkImage('$baseUrl${profile.anh}')
+                            : null,
+                        child: profile.anh == null
+                            ? Text(
+                          profile.hoTen[0].toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        )
+                            : null,
+                      ),
                     ),
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: AppColors.surface,
-                      backgroundImage: profile.anh != null
-                          ? NetworkImage('$baseUrl${profile.anh}')
-                          : null,
-                      child: profile.anh == null
-                          ? Text(
-                        profile.hoTen[0].toUpperCase(),
-                        style: AppTextStyles.headingLarge.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      )
-                          : null,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: InkWell(
-                      onTap: () => _showChangeAvatarDialog(provider),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
                       child: Container(
                         padding: AppDimensions.paddingAll(AppDimensions.spacingXS),
                         decoration: BoxDecoration(
-                          color: AppColors.secondary,
+                          color: AppColors.surface,
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.textOnPrimary,
-                            width: 2,
-                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Icon(
                           Icons.camera_alt,
                           size: AppDimensions.iconSM,
-                          color: AppColors.textOnPrimary,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               SizedBox(height: AppDimensions.spacingMD),
 
               // Tên
               Text(
                 profile.hoTen,
-                style: AppTextStyles.headingLarge.copyWith(
+                style: AppTextStyles.displaySmall.copyWith(
                   color: AppColors.textOnPrimary,
-                  fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: AppDimensions.spacingXS),
+              SizedBox(height: AppDimensions.spacingXXS),
 
               // Vai trò & Chức vụ
               Container(
                 padding: AppDimensions.paddingSymmetric(
-                  horizontal: AppDimensions.spacingMD,
-                  vertical: AppDimensions.spacingXS,
+                  horizontal: AppDimensions.chipPaddingH,
+                  vertical: AppDimensions.chipPaddingV,
                 ),
                 decoration: BoxDecoration(
                   color: AppColors.textOnPrimary.withOpacity(0.2),
-                  borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusFull),
+                  borderRadius: AppDimensions.radiusCircular(
+                    AppDimensions.chipRadius,
+                  ),
                 ),
                 child: Text(
                   '${profile.chucVu ?? 'Tình nguyện viên'}',
@@ -215,16 +215,17 @@ class _AccountTabState extends State<AccountTab> {
                   ),
                 ),
               ),
-              SizedBox(height: AppDimensions.spacingMD),
+              SizedBox(height: AppDimensions.spacingXS),
 
               // Thông tin ngắn gọn
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildInfoChip(
                     icon: Icons.phone,
                     label: profile.sdt,
                   ),
+                  SizedBox(width: AppDimensions.spacingXS),
                   _buildInfoChip(
                     icon: Icons.location_on,
                     label: profile.tenKhuPho ?? 'N/A',
@@ -241,12 +242,12 @@ class _AccountTabState extends State<AccountTab> {
   Widget _buildInfoChip({required IconData icon, required String label}) {
     return Container(
       padding: AppDimensions.paddingSymmetric(
-        horizontal: AppDimensions.spacingSM,
-        vertical: AppDimensions.spacingXS,
+        horizontal: AppDimensions.chipPaddingH,
+        vertical: AppDimensions.chipPaddingV,
       ),
       decoration: BoxDecoration(
         color: AppColors.textOnPrimary.withOpacity(0.2),
-        borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusFull),
+        borderRadius: AppDimensions.radiusCircular(AppDimensions.chipRadius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -256,11 +257,14 @@ class _AccountTabState extends State<AccountTab> {
             size: AppDimensions.iconXS,
             color: AppColors.textOnPrimary,
           ),
-          SizedBox(width: AppDimensions.spacingXS),
-          Text(
-            label,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textOnPrimary,
+          SizedBox(width: AppDimensions.spacingXXS),
+          Flexible(
+            child: Text(
+              label,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textOnPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -273,16 +277,17 @@ class _AccountTabState extends State<AccountTab> {
   // ==========================================================================
   Widget _buildMenuList(VolunteerProvider provider) {
     return Padding(
-      padding: AppDimensions.paddingSymmetric(horizontal: AppDimensions.spacingMD),
+      padding: AppDimensions.paddingSymmetric(horizontal: AppDimensions.screenPaddingH),
       child: Column(
         children: [
           _buildMenuSection(
             title: 'Thông tin cá nhân',
             items: [
               _MenuItem(
-                icon: Icons.person_outline,
+                icon: Icons.person,
                 title: 'Thông tin tài khoản',
                 subtitle: 'Xem và chỉnh sửa thông tin cá nhân',
+                color: AppColors.info,
                 onTap: () async {
                   final result = await Navigator.push(
                     context,
@@ -301,6 +306,7 @@ class _AccountTabState extends State<AccountTab> {
                 icon: Icons.calendar_today,
                 title: 'Cập nhật lịch trống',
                 subtitle: 'Cập nhật thời gian rảnh trong tuần',
+                color: AppColors.success,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -308,17 +314,11 @@ class _AccountTabState extends State<AccountTab> {
                   );
                 },
               ),
-            ],
-          ),
-          SizedBox(height: AppDimensions.spacingMD),
-
-          _buildMenuSection(
-            title: 'Hoạt động',
-            items: [
               _MenuItem(
                 icon: Icons.history,
                 title: 'Lịch sử hoạt động',
                 subtitle: 'Xem lịch sử tham gia sự kiện',
+                color: AppColors.secondary,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -326,29 +326,22 @@ class _AccountTabState extends State<AccountTab> {
                   );
                 },
               ),
-            ],
-          ),
-          SizedBox(height: AppDimensions.spacingMD),
-
-          _buildMenuSection(
-            title: 'Cài đặt',
-            items: [
               _MenuItem(
-                icon: Icons.lock_outline,
+                icon: Icons.lock,
                 title: 'Đổi mật khẩu',
                 subtitle: 'Thay đổi mật khẩu đăng nhập',
+                color: AppColors.warning,
                 onTap: () => _showDoiMatKhauDialog(provider),
               ),
               _MenuItem(
                 icon: Icons.logout,
                 title: 'Đăng xuất',
                 subtitle: 'Thoát khỏi tài khoản',
-                textColor: AppColors.error,
-                onTap: () => _logout(),
+                color: AppColors.error,
+                onTap: () => _showDangXuatDialog(context, provider),
               ),
             ],
           ),
-          SizedBox(height: AppDimensions.spacingXL),
         ],
       ),
     );
@@ -358,82 +351,100 @@ class _AccountTabState extends State<AccountTab> {
     required String title,
     required List<_MenuItem> items,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusLG),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: AppDimensions.paddingAll(AppDimensions.spacingMD),
-            child: Text(
-              title,
-              style: AppTextStyles.labelLarge.copyWith(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Divider(height: 1, color: AppColors.divider),
-          ...items.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            return Column(
-              children: [
-                _buildMenuItem(item),
-                if (index < items.length - 1)
-                  Divider(height: 1, color: AppColors.divider),
-              ],
-            );
-          }).toList(),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...items.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+          return Column(
+            children: [
+              _buildMenuItem(item),
+              if (index < items.length - 1)
+                SizedBox(height: 0),
+            ],
+          );
+        }).toList(),
+      ],
     );
   }
 
   Widget _buildMenuItem(_MenuItem item) {
-    return ListTile(
-      leading: Container(
-        padding: AppDimensions.paddingAll(AppDimensions.spacingXS),
-        decoration: BoxDecoration(
-          color: (item.textColor ?? AppColors.primary).withOpacity(0.1),
-          borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusMD),
-        ),
-        child: Icon(
-          item.icon,
-          color: item.textColor ?? AppColors.primary,
-          size: AppDimensions.iconMD,
+    return Container(
+      margin: AppDimensions.paddingSymmetric(
+        vertical: AppDimensions.spacingXS,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppDimensions.radiusCircular(AppDimensions.cardRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: item.onTap,
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.cardRadius),
+          child: Padding(
+            padding: AppDimensions.paddingSymmetric(
+              horizontal: AppDimensions.cardPadding,
+              vertical: AppDimensions.spacingSM,
+            ),
+            child: Row(
+              children: [
+                // Icon container
+                Container(
+                  padding: AppDimensions.paddingAll(AppDimensions.spacingSM),
+                  decoration: BoxDecoration(
+                    color: item.color.withOpacity(0.1),
+                    borderRadius: AppDimensions.radiusCircular(
+                      AppDimensions.radiusMD,
+                    ),
+                  ),
+                  child: Icon(
+                    item.icon,
+                    color: item.color,
+                    size: AppDimensions.iconLG,
+                  ),
+                ),
+                SizedBox(width: AppDimensions.spacingMD),
+
+                // Text
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        style: AppTextStyles.headingSmall,
+                      ),
+                      if (item.subtitle != null) ...[
+                        SizedBox(height: AppDimensions.spacingXXS),
+                        Text(
+                          item.subtitle!,
+                          style: AppTextStyles.bodySmall,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                // Arrow
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: AppDimensions.iconXS,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-      title: Text(
-        item.title,
-        style: AppTextStyles.bodyLarge.copyWith(
-          color: item.textColor,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: item.subtitle != null
-          ? Text(
-        item.subtitle!,
-        style: AppTextStyles.bodySmall.copyWith(
-          color: AppColors.textSecondary,
-        ),
-      )
-          : null,
-      trailing: Icon(
-        Icons.chevron_right,
-        color: AppColors.textSecondary,
-      ),
-      onTap: item.onTap,
     );
   }
 
@@ -551,30 +562,121 @@ class _AccountTabState extends State<AccountTab> {
   // SHOW CHANGE AVATAR DIALOG
   // ==========================================================================
   void _showChangeAvatarDialog(VolunteerProvider provider) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Chọn ảnh đại diện'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title: Text('Chụp ảnh'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera, provider);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.photo_library),
-              title: Text('Chọn từ thư viện'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery, provider);
-              },
-            ),
-          ],
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.bottomSheetRadius),
+        ),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: AppDimensions.paddingSymmetric(
+            vertical: AppDimensions.spacingLG,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.divider,
+                  borderRadius: AppDimensions.radiusCircular(
+                    AppDimensions.radiusFull,
+                  ),
+                ),
+              ),
+              SizedBox(height: AppDimensions.spacingMD),
+
+              // Title
+              Padding(
+                padding: AppDimensions.paddingSymmetric(
+                  horizontal: AppDimensions.spacingMD,
+                ),
+                child: Text(
+                  'Thay đổi ảnh đại diện',
+                  style: AppTextStyles.headingMedium,
+                ),
+              ),
+              SizedBox(height: AppDimensions.spacingMD),
+
+              // Options
+              _buildBottomSheetOption(
+                sheetContext,
+                icon: Icons.camera_alt,
+                title: 'Chụp ảnh',
+                color: AppColors.info,
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickImage(ImageSource.camera, provider);
+                },
+              ),
+              _buildBottomSheetOption(
+                sheetContext,
+                icon: Icons.photo_library,
+                title: 'Chọn từ thư viện',
+                color: AppColors.success,
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickImage(ImageSource.gallery, provider);
+                },
+              ),
+              _buildBottomSheetOption(
+                sheetContext,
+                icon: Icons.close,
+                title: 'Hủy',
+                color: AppColors.textSecondary,
+                onTap: () => Navigator.pop(sheetContext),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomSheetOption(
+      BuildContext context, {
+        required IconData icon,
+        required String title,
+        required Color color,
+        required VoidCallback onTap,
+      }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: AppDimensions.paddingSymmetric(
+            horizontal: AppDimensions.spacingMD,
+            vertical: AppDimensions.spacingSM,
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: AppDimensions.paddingAll(AppDimensions.spacingSM),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: AppDimensions.radiusCircular(
+                    AppDimensions.radiusMD,
+                  ),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: AppDimensions.iconMD,
+                ),
+              ),
+              SizedBox(width: AppDimensions.spacingMD),
+              Text(
+                title,
+                style: AppTextStyles.bodyLarge,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -615,42 +717,343 @@ class _AccountTabState extends State<AccountTab> {
       );
     }
   }
-
-  // ==========================================================================
-  // SHOW ĐỔI MẬT KHẨU DIALOG
-  // ==========================================================================
   void _showDoiMatKhauDialog(VolunteerProvider provider) {
     showDialog(
       context: context,
       builder: (context) => const DoiMatKhauDialog(),
     );
   }
+  // void _logout() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => Dialog(
+  //       shape: RoundedRectangleBorder(
+  //         borderRadius: AppDimensions.radiusCircular(
+  //           AppDimensions.dialogRadius,
+  //         ),
+  //       ),
+  //       backgroundColor: AppColors.surface,
+  //       elevation: AppDimensions.elevationLG,
+  //       child: Container(
+  //         constraints: const BoxConstraints(maxWidth: 400),
+  //         child: SingleChildScrollView(
+  //           child: Padding(
+  //             padding: AppDimensions.paddingAll(AppDimensions.spacingXXL),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.stretch,
+  //               children: [
+  //                 // Header với icon và title
+  //                 Column(
+  //                   children: [
+  //                     // Icon container
+  //                     Container(
+  //                       width: AppDimensions.iconXL,
+  //                       height: AppDimensions.iconXL,
+  //                       decoration: BoxDecoration(
+  //                         color: AppColors.errorOverlay,
+  //                         borderRadius: AppDimensions.radiusCircular(
+  //                           AppDimensions.radiusLG,
+  //                         ),
+  //                       ),
+  //                       child: Icon(
+  //                         Icons.logout_rounded,
+  //                         color: AppColors.error,
+  //                         size: AppDimensions.iconMD,
+  //                       ),
+  //                     ),
+  //
+  //                     SizedBox(height: AppDimensions.spacingMD),
+  //
+  //                     // Title
+  //                     Text(
+  //                       'Xác nhận đăng xuất',
+  //                       style: AppTextStyles.displaySmall,
+  //                       textAlign: TextAlign.center,
+  //                     ),
+  //
+  //                     SizedBox(height: AppDimensions.spacingXS),
+  //
+  //                     // Content
+  //                     Text(
+  //                       'Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?',
+  //                       style: AppTextStyles.bodyMedium.copyWith(
+  //                         color: AppColors.textSecondary,
+  //                       ),
+  //                       textAlign: TextAlign.center,
+  //                     ),
+  //                   ],
+  //                 ),
+  //
+  //                 SizedBox(height: AppDimensions.spacingXXL),
+  //
+  //                 // Buttons
+  //                 Row(
+  //                   children: [
+  //                     // Nút Hủy
+  //                     Expanded(
+  //                       child: OutlinedButton(
+  //                         onPressed: () => Navigator.pop(context),
+  //                         style: OutlinedButton.styleFrom(
+  //                           foregroundColor: AppColors.textSecondary,
+  //                           side: BorderSide(
+  //                             color: AppColors.divider,
+  //                             width: AppDimensions.borderMedium,
+  //                           ),
+  //                           padding: AppDimensions.paddingSymmetric(
+  //                             vertical: AppDimensions.spacingMD,
+  //                           ),
+  //                           shape: RoundedRectangleBorder(
+  //                             borderRadius: AppDimensions.radiusCircular(
+  //                               AppDimensions.buttonRadius,
+  //                             ),
+  //                           ),
+  //                         ),
+  //                         child: Text(
+  //                           'Hủy',
+  //                           style: AppTextStyles.labelLarge.copyWith(
+  //                             color: AppColors.textSecondary,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //
+  //                     SizedBox(width: AppDimensions.spacingMD),
+  //
+  //                     // Nút Đăng xuất
+  //                     Expanded(
+  //                       flex: 2,
+  //                       child: ElevatedButton(
+  //                         onPressed: () async {
+  //                           Navigator.pop(context);
+  //                           await context.read<AuthProvider>().logout();
+  //                         },
+  //                         style: ElevatedButton.styleFrom(
+  //                           backgroundColor: AppColors.error,
+  //                           foregroundColor: AppColors.textOnPrimary,
+  //                           padding: AppDimensions.paddingSymmetric(
+  //                             vertical: AppDimensions.spacingMD,
+  //                           ),
+  //                           shape: RoundedRectangleBorder(
+  //                             borderRadius: AppDimensions.radiusCircular(
+  //                               AppDimensions.buttonRadius,
+  //                             ),
+  //                           ),
+  //                           elevation: AppDimensions.elevationSM,
+  //                         ),
+  //                         child: Text(
+  //                           'Đăng xuất',
+  //                           style: AppTextStyles.labelLarge.copyWith(
+  //                             color: AppColors.textOnPrimary,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  // ==========================================================================
-  // LOGOUT
-  // ==========================================================================
-  void _logout() {
+  void _showDangXuatDialog(BuildContext context, VolunteerProvider provider) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Xác nhận đăng xuất'),
-        content: Text('Bạn có chắc chắn muốn đăng xuất?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Hủy'),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: AppDimensions.radiusCircular(
+            AppDimensions.dialogRadius,
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await context.read<AuthProvider>().logout();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
+        ),
+        backgroundColor: AppColors.surface,
+        elevation: AppDimensions.elevationLG,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: AppDimensions.paddingAll(AppDimensions.spacingXXL),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header với icon và title
+                  Column(
+                    children: [
+                      // Icon container
+                      Container(
+                        width: AppDimensions.iconXL,
+                        height: AppDimensions.iconXL,
+                        decoration: BoxDecoration(
+                          color: AppColors.errorOverlay,
+                          borderRadius: AppDimensions.radiusCircular(
+                            AppDimensions.radiusLG,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.logout_rounded,
+                          color: AppColors.error,
+                          size: AppDimensions.iconMD,
+                        ),
+                      ),
+
+                      SizedBox(height: AppDimensions.spacingMD),
+
+                      // Title
+                      Text(
+                        'Xác nhận đăng xuất',
+                        style: AppTextStyles.displaySmall,
+                        textAlign: TextAlign.center,
+                      ),
+
+                      SizedBox(height: AppDimensions.spacingXS),
+
+                      // Content
+                      Text(
+                        'Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: AppDimensions.spacingXXL),
+
+                  // Buttons
+                  Row(
+                    children: [
+                      // Nút Hủy
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.textSecondary,
+                            side: BorderSide(
+                              color: AppColors.divider,
+                              width: AppDimensions.borderMedium,
+                            ),
+                            padding: AppDimensions.paddingSymmetric(
+                              vertical: AppDimensions.spacingMD,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: AppDimensions.radiusCircular(
+                                AppDimensions.buttonRadius,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            'Hủy',
+                            style: AppTextStyles.labelLarge.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(width: AppDimensions.spacingMD),
+
+                      // Nút Đăng xuất
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context); // Close dialog
+
+                            // Show loading
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => Center(
+                                child: Container(
+                                  padding: AppDimensions.paddingAll(
+                                    AppDimensions.spacingXXL,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    borderRadius: AppDimensions.radiusCircular(
+                                      AppDimensions.radiusLG,
+                                    ),
+                                  ),
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.primary,
+                                    strokeWidth: 3,
+                                  ),
+                                ),
+                              ),
+                            );
+
+                            try {
+                              // 1. Đăng xuất từ server
+                              await provider.dangXuat();
+
+                              // 2. Clear tất cả providers
+                              if (context.mounted) {
+                                await clearAllUserData(context, "TNV");
+                              }
+
+                              // 3. Close loading
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                              }
+
+                              // 4. RESTART APP - Quay về SplashScreen
+                              if (context.mounted) {
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                    builder: (context) => SplashScreen(
+                                      auth: context.read<AuthProvider>(),
+                                    ),
+                                  ),
+                                      (route) => false,
+                                );
+                              }
+                            } catch (e) {
+                              // Close loading
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                              }
+
+                              if (context.mounted) {
+                                showErrorDialog(
+                                  context,
+                                  'Lỗi đăng xuất. Vui lòng thử lại.',
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.error,
+                            foregroundColor: AppColors.textOnPrimary,
+                            padding: AppDimensions.paddingSymmetric(
+                              vertical: AppDimensions.spacingMD,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: AppDimensions.radiusCircular(
+                                AppDimensions.buttonRadius,
+                              ),
+                            ),
+                            elevation: AppDimensions.elevationSM,
+                          ),
+                          child: Text(
+                            'Đăng xuất',
+                            style: AppTextStyles.labelLarge.copyWith(
+                              color: AppColors.textOnPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            child: Text('Đăng xuất'),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -663,14 +1066,14 @@ class _MenuItem {
   final IconData icon;
   final String title;
   final String? subtitle;
-  final Color? textColor;
+  final Color color;
   final VoidCallback onTap;
 
   _MenuItem({
     required this.icon,
     required this.title,
     this.subtitle,
-    this.textColor,
+    required this.color,
     required this.onTap,
   });
 }

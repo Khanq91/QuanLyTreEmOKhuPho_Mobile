@@ -187,15 +187,15 @@ class VolunteerService extends ApiService {
           (response) => ChiTietTreEmVanDong.fromJson(response),
     );
   }
-
-  // ============ CHI TIẾT TRẺ HỖ TRỢ PHÚC LỢI ============
-
-  Future<ChiTietTreEmHoTro> getChiTietTreEmHoTro(int hoTroId) async {
-    return Get(
-      '/Mobile/TinhNguyenVien/HoTroTreEm/$hoTroId',
-          (response) => ChiTietTreEmHoTro.fromJson(response),
-    );
-  }
+  //
+  // // ============ CHI TIẾT TRẺ HỖ TRỢ PHÚC LỢI ============
+  //
+  // Future<ChiTietTreEmHoTro> getChiTietTreEmHoTro(int hoTroId) async {
+  //   return Get(
+  //     '/Mobile/TinhNguyenVien/HoTroTreEm/$hoTroId',
+  //         (response) => ChiTietTreEmHoTro.fromJson(response),
+  //   );
+  // }
 
   // ============ CẬP NHẬT VẬN ĐỘNG ============
 
