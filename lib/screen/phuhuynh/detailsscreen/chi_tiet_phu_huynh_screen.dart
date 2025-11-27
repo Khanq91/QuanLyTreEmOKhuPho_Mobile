@@ -6,6 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../../models/tab_tai_khoan_ph.dart';
 import '../../../providers/phu_huynh.dart';
+import '../../other/app_color.dart';
+import '../../other/app_text.dart';
+import '../../other/app_dimension.dart';
 
 class ChiTietPhuHuynhScreen extends StatefulWidget {
   final PhuHuynhVoiMoiQuanHe phuHuynh;
@@ -29,6 +32,7 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
   late TextEditingController _quocTichController;
 
   bool _isEditing = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -63,19 +67,24 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
     final hasAvatar = widget.phuHuynh.anh.isNotEmpty;
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(_isEditing ? 'Chỉnh sửa thông tin' : 'Thông tin phụ huynh'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
+        title: Text(
+          _isEditing ? 'Chỉnh sửa thông tin' : 'Thông tin phụ huynh',
+          style: AppTextStyles.appBarTitle,
+        ),
+        backgroundColor: AppColors.appBarBackground,
+        foregroundColor: AppColors.appBarText,
+        elevation: AppDimensions.appBarElevation,
         actions: [
           if (!_isEditing)
             IconButton(
-              icon: const Icon(Icons.edit),
+              icon: const Icon(Icons.edit, size: AppDimensions.iconMD),
               onPressed: () => setState(() => _isEditing = true),
             ),
           if (_isEditing)
             IconButton(
-              icon: const Icon(Icons.close),
+              icon: const Icon(Icons.close, size: AppDimensions.iconMD),
               onPressed: () => setState(() => _isEditing = false),
             ),
         ],
@@ -83,19 +92,12 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Header với avatar
+            // Header với avatar - Solid color
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.primary.withOpacity(0.7),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+              padding: AppDimensions.paddingAll(AppDimensions.spacingXL),
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
               ),
               child: Column(
                 children: [
@@ -118,16 +120,20 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
                     child: Stack(
                       children: [
                         Container(
-                          width: 120,
-                          height: 120,
+                          width: AppDimensions.avatarXXL,
+                          height: AppDimensions.avatarXXL,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.surface,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 4),
+                            border: Border.all(
+                              color: AppColors.surface,
+                              width: AppDimensions.borderExtraThick,
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withOpacity(0.15),
                                 blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -137,12 +143,18 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
                               '$baseUrl${widget.phuHuynh.anh}',
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
-                                return Icon(Icons.person,
-                                    size: 60, color: Colors.grey.shade400);
+                                return Icon(
+                                  Icons.person,
+                                  size: AppDimensions.iconXL,
+                                  color: AppColors.textDisabled,
+                                );
                               },
                             )
-                                : Icon(Icons.person,
-                                size: 60, color: Colors.grey.shade400),
+                                : Icon(
+                              Icons.person,
+                              size: AppDimensions.iconXL,
+                              color: AppColors.textDisabled,
+                            ),
                           ),
                         ),
                         if (_isEditing)
@@ -150,35 +162,35 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
                             bottom: 0,
                             right: 0,
                             child: Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: AppDimensions.paddingAll(AppDimensions.spacingXS),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: AppColors.surface,
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
+                                    color: Colors.black.withOpacity(0.15),
                                     blurRadius: 4,
+                                    offset: const Offset(0, 2),
                                   ),
                                 ],
                               ),
                               child: Icon(
                                 Icons.camera_alt,
-                                size: 20,
-                                color: Theme.of(context).colorScheme.primary,
+                                size: AppDimensions.iconSM,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: AppDimensions.spacingMD),
                   Text(
                     widget.phuHuynh.hoTen,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    style: AppTextStyles.displaySmall.copyWith(
+                      color: AppColors.textOnPrimary,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -187,64 +199,72 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
             // Mối quan hệ (nếu có)
             if (widget.phuHuynh.danhSachMoiQuanHe.isNotEmpty)
               Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(16),
+                margin: AppDimensions.paddingAll(AppDimensions.spacingMD),
+                padding: AppDimensions.paddingAll(AppDimensions.spacingMD),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.shade200),
+                  color: AppColors.successOverlay,
+                  borderRadius: AppDimensions.radiusCircular(AppDimensions.cardRadius),
+                  border: Border.all(
+                    color: AppColors.withBorder(AppColors.success),
+                    width: AppDimensions.borderThin,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.family_restroom,
-                            color: Colors.green.shade700),
-                        const SizedBox(width: 8),
-                        const Text(
+                        Icon(
+                          Icons.family_restroom,
+                          color: AppColors.success,
+                          size: AppDimensions.iconMD,
+                        ),
+                        SizedBox(width: AppDimensions.spacingXS),
+                        Text(
                           'Mối quan hệ',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                          style: AppTextStyles.headingSmall.copyWith(
+                            color: AppColors.success,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: AppDimensions.spacingSM),
                     ...widget.phuHuynh.danhSachMoiQuanHe.map((mqh) {
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
+                        padding: AppDimensions.paddingOnly(
+                          bottom: AppDimensions.spacingXS,
+                        ),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade600,
+                              width: 6,
+                              height: 6,
+                              margin: AppDimensions.paddingOnly(
+                                top: AppDimensions.spacingXS,
+                              ),
+                              decoration: const BoxDecoration(
+                                color: AppColors.success,
                                 shape: BoxShape.circle,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: AppDimensions.spacingSM),
                             Expanded(
                               child: RichText(
                                 text: TextSpan(
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.black87,
-                                  ),
+                                  style: AppTextStyles.bodyMedium,
                                   children: [
                                     TextSpan(
                                       text: '${mqh.moiQuanHe} ',
-                                      style: TextStyle(
+                                      style: AppTextStyles.bodyMedium.copyWith(
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.green.shade800,
+                                        color: AppColors.success,
                                       ),
                                     ),
                                     const TextSpan(text: 'của '),
                                     TextSpan(
                                       text: mqh.tenTreEm,
-                                      style: const TextStyle(
+                                      style: AppTextStyles.bodyMedium.copyWith(
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -262,7 +282,7 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
 
             // Form thông tin
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: AppDimensions.paddingAll(AppDimensions.spacingMD),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -273,90 +293,92 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
                       label: 'Họ và tên',
                       icon: Icons.person,
                       enabled: _isEditing,
+                      helperText: 'Họ và tên đầy đủ của phụ huynh',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Vui lòng nhập họ tên';
                         }
+                        if (value.length < 3) {
+                          return 'Họ tên phải có ít nhất 3 ký tự';
+                        }
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: AppDimensions.formFieldGap),
                     _buildTextField(
                       controller: _sdtController,
                       label: 'Số điện thoại',
                       icon: Icons.phone,
                       enabled: _isEditing,
                       keyboardType: TextInputType.phone,
+                      helperText: 'Số điện thoại liên hệ',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Vui lòng nhập số điện thoại';
                         }
                         if (value.length < 10) {
-                          return 'Số điện thoại không hợp lệ';
+                          return 'Số điện thoại phải có ít nhất 10 số';
+                        }
+                        if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                          return 'Số điện thoại chỉ chứa chữ số';
                         }
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: AppDimensions.formFieldGap),
                     _buildDateField(
                       controller: _ngaySinhController,
                       label: 'Ngày sinh',
                       icon: Icons.cake,
                       enabled: _isEditing,
+                      helperText: 'Định dạng: dd/MM/yyyy',
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: AppDimensions.formFieldGap),
                     _buildTextField(
                       controller: _diaChiController,
                       label: 'Địa chỉ',
                       icon: Icons.home,
                       enabled: _isEditing,
                       maxLines: 2,
+                      helperText: 'Địa chỉ thường trú hoặc tạm trú',
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: AppDimensions.formFieldGap),
                     _buildTextField(
                       controller: _ngheNghiepController,
                       label: 'Nghề nghiệp',
                       icon: Icons.work,
                       enabled: _isEditing,
+                      helperText: 'Công việc hiện tại',
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: AppDimensions.formFieldGap),
                     _buildTextField(
                       controller: _tonGiaoController,
                       label: 'Tôn giáo',
                       icon: Icons.church,
                       enabled: _isEditing,
+                      helperText: 'Tôn giáo (nếu có)',
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: AppDimensions.formFieldGap),
                     _buildTextField(
                       controller: _danTocController,
                       label: 'Dân tộc',
                       icon: Icons.people,
                       enabled: _isEditing,
+                      helperText: 'Dân tộc',
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: AppDimensions.formFieldGap),
                     _buildTextField(
                       controller: _quocTichController,
                       label: 'Quốc tịch',
                       icon: Icons.flag,
                       enabled: _isEditing,
+                      helperText: 'Quốc tịch hiện tại',
                     ),
                     if (_isEditing) ...[
-                      const SizedBox(height: 32),
-                      ElevatedButton(
-                        onPressed: _submitForm,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'Lưu thay đổi',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
+                      SizedBox(height: AppDimensions.spacingXXL),
+                      _buildSaveButton(),
                     ],
-                    const SizedBox(height: 24),
+                    SizedBox(height: AppDimensions.spacingXL),
                   ],
                 ),
               ),
@@ -375,6 +397,7 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
     TextInputType? keyboardType,
     String? Function(String?)? validator,
     int maxLines = 1,
+    String? helperText,
   }) {
     return TextFormField(
       controller: controller,
@@ -382,14 +405,69 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
       keyboardType: keyboardType,
       maxLines: maxLines,
       validator: validator,
+      style: AppTextStyles.bodyMedium,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon),
+        labelStyle: enabled
+            ? AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)
+            : AppTextStyles.bodyMedium.copyWith(color: AppColors.textDisabled),
+        helperText: enabled ? helperText : null,
+        helperStyle: AppTextStyles.caption,
+        helperMaxLines: 2,
+        prefixIcon: Icon(
+          icon,
+          size: AppDimensions.iconMD,
+          color: enabled ? AppColors.primary : AppColors.textDisabled,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(
+            color: AppColors.divider,
+            width: AppDimensions.borderThin,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(
+            color: AppColors.divider,
+            width: AppDimensions.borderThin,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(
+            color: AppColors.primary,
+            width: AppDimensions.borderMedium,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(
+            color: AppColors.error,
+            width: AppDimensions.borderThin,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(
+            color: AppColors.error,
+            width: AppDimensions.borderMedium,
+          ),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(
+            color: AppColors.divider,
+            width: AppDimensions.borderThin,
+          ),
         ),
         filled: !enabled,
-        fillColor: enabled ? null : Colors.grey.shade100,
+        fillColor: enabled ? AppColors.surface : AppColors.surfaceVariant,
+        contentPadding: AppDimensions.paddingSymmetric(
+          horizontal: AppDimensions.spacingMD,
+          vertical: AppDimensions.spacingSM,
+        ),
+        errorStyle: AppTextStyles.caption.copyWith(color: AppColors.error),
       ),
     );
   }
@@ -399,11 +477,13 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
     required String label,
     required IconData icon,
     required bool enabled,
+    String? helperText,
   }) {
     return TextFormField(
       controller: controller,
       enabled: enabled,
       readOnly: true,
+      style: AppTextStyles.bodyMedium,
       onTap: enabled
           ? () async {
         final DateTime? picked = await showDatePicker(
@@ -411,6 +491,18 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
           initialDate: _parseDate(controller.text) ?? DateTime.now(),
           firstDate: DateTime(1900),
           lastDate: DateTime.now(),
+          builder: (context, child) {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: const ColorScheme.light(
+                  primary: AppColors.primary,
+                  onPrimary: AppColors.textOnPrimary,
+                  surface: AppColors.surface,
+                ),
+              ),
+              child: child!,
+            );
+          },
         );
         if (picked != null) {
           controller.text = DateFormat('dd/MM/yyyy').format(picked);
@@ -419,13 +511,103 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
           : null,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon),
-        suffixIcon: enabled ? const Icon(Icons.calendar_today) : null,
+        labelStyle: enabled
+            ? AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)
+            : AppTextStyles.bodyMedium.copyWith(color: AppColors.textDisabled),
+        helperText: enabled ? helperText : null,
+        helperStyle: AppTextStyles.caption,
+        prefixIcon: Icon(
+          icon,
+          size: AppDimensions.iconMD,
+          color: enabled ? AppColors.primary : AppColors.textDisabled,
+        ),
+        suffixIcon: enabled
+            ? Icon(
+          Icons.calendar_today,
+          size: AppDimensions.iconSM,
+          color: AppColors.primary,
+        )
+            : null,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(
+            color: AppColors.divider,
+            width: AppDimensions.borderThin,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(
+            color: AppColors.divider,
+            width: AppDimensions.borderThin,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(
+            color: AppColors.primary,
+            width: AppDimensions.borderMedium,
+          ),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+          borderSide: const BorderSide(
+            color: AppColors.divider,
+            width: AppDimensions.borderThin,
+          ),
         ),
         filled: !enabled,
-        fillColor: enabled ? null : Colors.grey.shade100,
+        fillColor: enabled ? AppColors.surface : AppColors.surfaceVariant,
+        contentPadding: AppDimensions.paddingSymmetric(
+          horizontal: AppDimensions.spacingMD,
+          vertical: AppDimensions.spacingSM,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return SizedBox(
+      height: AppDimensions.buttonHeightMD,
+      child: ElevatedButton(
+        onPressed: _isSaving ? null : _submitForm,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.textOnPrimary,
+          disabledBackgroundColor: AppColors.textDisabled,
+          elevation: AppDimensions.elevationNone,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppDimensions.radiusCircular(AppDimensions.buttonRadius),
+          ),
+          padding: AppDimensions.paddingSymmetric(
+            vertical: AppDimensions.buttonPaddingV,
+          ),
+        ),
+        child: _isSaving
+            ? Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: AppDimensions.iconSM,
+              height: AppDimensions.iconSM,
+              child: const CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppColors.textOnPrimary,
+                ),
+              ),
+            ),
+            SizedBox(width: AppDimensions.spacingXS),
+            Text(
+              'Đang lưu...',
+              style: AppTextStyles.button,
+            ),
+          ],
+        )
+            : Text(
+          'Lưu thay đổi',
+          style: AppTextStyles.button,
+        ),
       ),
     );
   }
@@ -515,11 +697,7 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
+    setState(() => _isSaving = true);
 
     try {
       await context.read<PhuHuynhProvider>().capNhatPhuHuynh({
@@ -534,16 +712,45 @@ class _ChiTietPhuHuynhScreenState extends State<ChiTietPhuHuynhScreen> {
         'quocTich': _quocTichController.text,
       });
 
-      Navigator.pop(context); // Close loading
-      Navigator.pop(context); // Back to list
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cập nhật thành công')),
-      );
+      if (mounted) {
+        setState(() => _isSaving = false);
+        Navigator.pop(context); // Back to list
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Cập nhật thành công',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textOnPrimary,
+              ),
+            ),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusMD),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
-      Navigator.pop(context); // Close loading
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi: ${e.toString()}')),
-      );
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi: ${e.toString()}',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textOnPrimary,
+              ),
+            ),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusMD),
+            ),
+          ),
+        );
+      }
     }
   }
 }

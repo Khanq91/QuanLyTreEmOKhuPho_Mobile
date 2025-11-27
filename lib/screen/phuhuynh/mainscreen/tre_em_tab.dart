@@ -75,6 +75,7 @@ class _ParentChildrenScreenState extends State<ParentChildrenScreen>
 
   Future<void> _loadChildData(int treEmId) async {
     final provider = context.read<PhuHuynhProvider>();
+    if (!mounted) return;
     await Future.wait([
       provider.loadPhieuHocTap(treEmId),
       provider.loadQuaDaNhan(treEmId),

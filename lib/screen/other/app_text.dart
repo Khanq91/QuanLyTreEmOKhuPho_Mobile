@@ -93,6 +93,15 @@ class AppTextStyles {
     letterSpacing: 0.1,
   );
 
+  /// Label Large - 14px, Medium - Dùng cho buttons, labels quan trọng
+  static const TextStyle labelLargeConverter = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    height: 1.4,
+    color: AppColors.textOnPrimary,
+    letterSpacing: 0.1,
+  );
+
   /// Label Medium - 12px, Medium - Dùng cho chips, tags
   static const TextStyle labelMedium = TextStyle(
     fontSize: 12,

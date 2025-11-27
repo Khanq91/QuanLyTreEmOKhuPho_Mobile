@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
@@ -6,62 +7,119 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
-  // - Nếu chạy trên Emulator Android: dùng 10.0.2.2
-  // - Nếu chạy trên thiết bị thật: dùng IP máy tính (vd: 192.168.1.100)
-  // static const String baseUrl = 'https://localhost:7001/api';
-  // static const String baseUrl = 'http://10.0.2.2:5019/api';
-  // static const String baseUrl = 'https://10.0.2.2:44362/api';
-  // static const String baseUrl = 'http://10.0.2.2:5035/api';
-  // static const String baseUrl = 'http://192.168.1.146:5035/api';
-
   static final String baseUrl = "${dotenv.env['BASE_URL']!}/api";
 
   final _secureStorage = const FlutterSecureStorage();
   String? _authToken;
+  String? _authVaiTro;
 
+  // ==================== TIMEOUT CONFIGURATION ====================
+  /// Timeout cho các request thông thường (10 giây)
+  static const Duration defaultTimeout = Duration(seconds: 10);
 
+  /// Timeout cho check API status (5 giây)
+  static const Duration checkStatusTimeout = Duration(seconds: 5);
+
+  /// Timeout cho upload file (30 giây)
+  static const Duration uploadTimeout = Duration(seconds: 30);
+
+  // ==================== CHECK API STATUS WITH TIMEOUT ====================
   Future<Map<String, dynamic>> checkApiStatus() async {
     try {
       final uri = Uri.parse('$baseUrl/KhuPho');
       final httpClient = getHttpClient();
 
       final stopwatch = Stopwatch()..start();
-      final request = await httpClient.getUrl(uri);
-      // _headers.forEach((key, value) => request.headers.add(key, value));
+
+      // Tạo request với timeout
+      final request = await httpClient
+          .getUrl(uri)
+          .timeout(checkStatusTimeout);
+
       final headers = await getHeaders();
       headers.forEach((key, value) => request.headers.add(key, value));
 
+      // Thực hiện request với timeout
+      final response = await request
+          .close()
+          .timeout(checkStatusTimeout);
 
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
+      final responseBody = await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(checkStatusTimeout);
+
       stopwatch.stop();
-
       httpClient.close();
 
+      final isSuccess = response.statusCode == 200;
+
       return {
-        'connected': response.statusCode == 200,
+        'connected': isSuccess,
         'statusCode': response.statusCode,
         'responseTime': stopwatch.elapsedMilliseconds,
-        'message': response.statusCode == 200 ? 'Kết nối thành công' : 'Kết nối thất bại',
-        'data': response.statusCode == 200 ? jsonDecode(responseBody) : null,
+        'message': isSuccess
+            ? 'Kết nối thành công (${stopwatch.elapsedMilliseconds}ms)'
+            : 'Server trả về lỗi ${response.statusCode}',
+        'data': isSuccess ? jsonDecode(responseBody) : null,
+        'errorType': isSuccess ? null : 'SERVER_ERROR',
+      };
+    } on TimeoutException catch (e) {
+      return {
+        'connected': false,
+        'error': 'Timeout: ${e.message ?? "Quá thời gian chờ"}',
+        'message': 'Kết nối quá chậm (timeout ${checkStatusTimeout.inSeconds}s)',
+        'errorType': 'TIMEOUT',
+      };
+    } on SocketException catch (e) {
+      return {
+        'connected': false,
+        'error': 'Socket: ${e.message}',
+        'message': 'Không thể kết nối - Kiểm tra mạng hoặc địa chỉ server',
+        'errorType': 'NETWORK',
+      };
+    } on HandshakeException catch (e) {
+      return {
+        'connected': false,
+        'error': 'SSL: ${e.message}',
+        'message': 'Lỗi bảo mật SSL - Kiểm tra cấu hình HTTPS',
+        'errorType': 'SSL',
+      };
+    } on FormatException catch (e) {
+      return {
+        'connected': false,
+        'error': 'Format: ${e.message}',
+        'message': 'Dữ liệu phản hồi không hợp lệ',
+        'errorType': 'FORMAT',
       };
     } catch (e) {
       return {
         'connected': false,
         'error': e.toString(),
-        'message': 'Không thể kết nối tới server',
+        'message': 'Lỗi không xác định khi kết nối',
+        'errorType': 'UNKNOWN',
       };
     }
   }
 
-  // Cho phép self-signed certificate
+  // ==================== HTTP CLIENT WITH TIMEOUT ====================
   static HttpClient getHttpClient() {
     final client = HttpClient();
+
+    // Cho phép self-signed certificate
     client.badCertificateCallback =
         (X509Certificate cert, String host, int port) => true;
+
+    // Set connection timeout
+    client.connectionTimeout = defaultTimeout;
+
+    // Set idle timeout
+    client.idleTimeout = const Duration(seconds: 15);
+
     return client;
   }
 
+  // ==================== AUTH TOKEN METHODS ====================
   Future<void> setAuthToken(String token) async {
     _authToken = token;
     await _secureStorage.write(key: 'auth_token', value: token);
@@ -72,18 +130,22 @@ class ApiService {
     return _authToken;
   }
 
-  Future<void> clearAuthToken() async {
-    _authToken = null;
-    await _secureStorage.delete(key: 'auth_token');
+  Future<void> setVaiTro(String vaiTro) async {
+    _authVaiTro = vaiTro;
+    await _secureStorage.write(key: 'auth_vaitro', value: vaiTro);
   }
 
-  // Map<String, String> get _headers {
-  //   final headers = {'Content-Type': 'application/json; charset=UTF-8'};
-  //   if (_authToken != null) {
-  //     headers['Authorization'] = 'Bearer $_authToken';
-  //   }
-  //   return headers;
-  // }
+  Future<String?> getsetVaiTro() async {
+    _authVaiTro ??= await _secureStorage.read(key: 'auth_vaitro');
+    return _authVaiTro;
+  }
+
+  Future<void> clearAuthToken() async {
+    _authToken = null;
+    _authVaiTro = null;
+    await _secureStorage.delete(key: 'auth_token');
+    await _secureStorage.delete(key: 'auth_vaitro');
+  }
 
   Future<Map<String, String>> getHeaders() async {
     _authToken ??= await _secureStorage.read(key: 'auth_token');
@@ -94,59 +156,36 @@ class ApiService {
     return headers;
   }
 
-  // Future<T> _get<T>(
-  //     String endpoint,
-  //     T Function(dynamic) parser,
-  //     ) async {
-  //   try {
-  //     final uri = Uri.parse('$baseUrl$endpoint');
-  //     print('🌐 GET Request: $uri');
-  //     final httpClient = getHttpClient();
-  //
-  //     final request = await httpClient.getUrl(uri);
-  //     // _headers.forEach((key, value) => request.headers.add(key, value));
-  //     final headers = await getHeaders();
-  //     headers.forEach((key, value) => request.headers.add(key, value));
-  //
-  //
-  //     final response = await request.close();
-  //     final responseBody = await response.transform(utf8.decoder).join();
-  //
-  //     print('GET Response Status: ${response.statusCode}');
-  //     if (response.statusCode == 200) {
-  //       return parser(jsonDecode(responseBody));
-  //     } else if (response.statusCode == 401) {
-  //       await clearAuthToken();
-  //       throw Exception('Phiên đăng nhập hết hạn');
-  //     } else {
-  //       print('GET Response Body: $responseBody');
-  //       throw Exception('Lỗi ${response.statusCode}: $responseBody');
-  //     }
-  //   } catch (e) {
-  //     if (kDebugMode) print('API GET Error: $e');
-  //     rethrow;
-  //   }
-  // }
+  // ==================== GET REQUEST WITH TIMEOUT ====================
   Future<T> _get<T>(
       String endpoint,
       T Function(dynamic) parser, {
         Map<String, dynamic>? queryParams,
+        Duration? timeout,
       }) async {
     try {
-      // Tạo URI có kèm query params
       final uri = Uri.parse('$baseUrl$endpoint').replace(queryParameters: queryParams);
       print('🌐 GET Request: $uri');
 
       final httpClient = getHttpClient();
-      final request = await httpClient.getUrl(uri);
+      final request = await httpClient
+          .getUrl(uri)
+          .timeout(timeout ?? defaultTimeout);
 
       final headers = await getHeaders();
       headers.forEach((key, value) => request.headers.add(key, value));
 
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
+      final response = await request
+          .close()
+          .timeout(timeout ?? defaultTimeout);
+
+      final responseBody = await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(timeout ?? defaultTimeout);
 
       print('GET Response Status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         return parser(jsonDecode(responseBody));
       } else if (response.statusCode == 401) {
@@ -156,35 +195,49 @@ class ApiService {
         print('GET Response Body: $responseBody');
         throw Exception('Lỗi ${response.statusCode}: $responseBody');
       }
+    } on TimeoutException {
+      throw Exception('Kết nối quá chậm, vui lòng thử lại');
+    } on SocketException catch (e) {
+      throw Exception('Lỗi kết nối mạng: ${e.message}');
     } catch (e) {
       if (kDebugMode) print('API GET Error: $e');
       rethrow;
     }
   }
 
-
+  // ==================== POST REQUEST WITH TIMEOUT ====================
   Future<T> _post<T>(
       String endpoint,
       dynamic data,
-      T Function(dynamic) parser,
-      ) async {
+      T Function(dynamic) parser, {
+        Duration? timeout,
+      }) async {
     try {
       print('Using Token: $_authToken');
       final uri = Uri.parse('$baseUrl$endpoint');
       print('🌐 POST Request: $uri');
-      final httpClient = getHttpClient();
 
-      final request = await httpClient.postUrl(uri);
-      // _headers.forEach((key, value) => request.headers.add(key, value));
+      final httpClient = getHttpClient();
+      final request = await httpClient
+          .postUrl(uri)
+          .timeout(timeout ?? defaultTimeout);
+
       final headers = await getHeaders();
       headers.forEach((key, value) => request.headers.add(key, value));
 
       request.add(utf8.encode(jsonEncode(data)));
 
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
+      final response = await request
+          .close()
+          .timeout(timeout ?? defaultTimeout);
+
+      final responseBody = await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(timeout ?? defaultTimeout);
 
       print('POST Response Status: ${response.statusCode}');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return parser(jsonDecode(responseBody));
       } else if (response.statusCode == 401) {
@@ -194,33 +247,48 @@ class ApiService {
         print('POST Response Body: $responseBody');
         throw Exception('Lỗi ${response.statusCode}: $responseBody');
       }
+    } on TimeoutException {
+      throw Exception('Kết nối quá chậm, vui lòng thử lại');
+    } on SocketException catch (e) {
+      throw Exception('Lỗi kết nối mạng: ${e.message}');
     } catch (e) {
       if (kDebugMode) print('API POST Error: $e');
       rethrow;
     }
   }
 
+  // ==================== PUT REQUEST WITH TIMEOUT ====================
   Future<T> _put<T>(
       String endpoint,
       dynamic data,
-      T Function(dynamic) parser,
-      ) async {
+      T Function(dynamic) parser, {
+        Duration? timeout,
+      }) async {
     try {
       final uri = Uri.parse('$baseUrl$endpoint');
       print('🌐 PUT Request: $uri');
-      final httpClient = getHttpClient();
 
-      final request = await httpClient.putUrl(uri);
-      // _headers.forEach((key, value) => request.headers.add(key, value));
+      final httpClient = getHttpClient();
+      final request = await httpClient
+          .putUrl(uri)
+          .timeout(timeout ?? defaultTimeout);
+
       final headers = await getHeaders();
       headers.forEach((key, value) => request.headers.add(key, value));
 
       request.add(utf8.encode(jsonEncode(data)));
 
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
+      final response = await request
+          .close()
+          .timeout(timeout ?? defaultTimeout);
+
+      final responseBody = await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(timeout ?? defaultTimeout);
 
       print('PUT Response Status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         return parser(jsonDecode(responseBody));
       } else if (response.statusCode == 401) {
@@ -230,33 +298,48 @@ class ApiService {
         print('PUT Response Body: $responseBody');
         throw Exception('Lỗi ${response.statusCode}: $responseBody');
       }
+    } on TimeoutException {
+      throw Exception('Kết nối quá chậm, vui lòng thử lại');
+    } on SocketException catch (e) {
+      throw Exception('Lỗi kết nối mạng: ${e.message}');
     } catch (e) {
       if (kDebugMode) print('API PUT Error: $e');
       rethrow;
     }
   }
+
+  // ==================== DELETE REQUEST WITH TIMEOUT ====================
   Future<T> _delete<T>(
       String endpoint,
-      T Function(dynamic) parser,
-      ) async {
+      T Function(dynamic) parser, {
+        Duration? timeout,
+      }) async {
     try {
       final uri = Uri.parse('$baseUrl$endpoint');
       print('🌐 DELETE Request: $uri');
-      final httpClient = getHttpClient();
 
-      final request = await httpClient.deleteUrl(uri);
+      final httpClient = getHttpClient();
+      final request = await httpClient
+          .deleteUrl(uri)
+          .timeout(timeout ?? defaultTimeout);
+
       final headers = await getHeaders();
       headers.forEach((key, value) => request.headers.add(key, value));
 
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
+      final response = await request
+          .close()
+          .timeout(timeout ?? defaultTimeout);
+
+      final responseBody = await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(timeout ?? defaultTimeout);
 
       print('DELETE Response Status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
-        // Nếu API trả về JSON, parse bình thường
         return parser(jsonDecode(responseBody));
       } else if (response.statusCode == 204) {
-        // Nếu API không trả nội dung (No Content)
         return parser({'success': true});
       } else if (response.statusCode == 401) {
         await clearAuthToken();
@@ -265,12 +348,17 @@ class ApiService {
         print('DELETE Response Body: $responseBody');
         throw Exception('Lỗi ${response.statusCode}: $responseBody');
       }
+    } on TimeoutException {
+      throw Exception('Kết nối quá chậm, vui lòng thử lại');
+    } on SocketException catch (e) {
+      throw Exception('Lỗi kết nối mạng: ${e.message}');
     } catch (e) {
       if (kDebugMode) print('API DELETE Error: $e');
       rethrow;
     }
   }
 
+  // ==================== UPLOAD FILE WITH TIMEOUT ====================
   Future<T> _uploadFile<T>(
       String endpoint,
       File file,
@@ -278,27 +366,27 @@ class ApiService {
       ) async {
     try {
       var uri = Uri.parse('$baseUrl$endpoint');
-
-      // Tạo multipart request
       var request = http.MultipartRequest('POST', uri);
 
-      // Thêm JWT token vào header
       if (_authToken != null) {
         request.headers['Authorization'] = 'Bearer $_authToken';
       }
 
-      // Thêm file vào request
       var multipartFile = await http.MultipartFile.fromPath(
-        'file', // Tên field phải khớp với [FromForm] IFormFile file trong API
+        'file',
         file.path,
       );
       request.files.add(multipartFile);
 
-      // Gửi request
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
+      // Gửi request với timeout
+      var streamedResponse = await request
+          .send()
+          .timeout(uploadTimeout);
 
-      // Xử lý response
+      var response = await http.Response
+          .fromStream(streamedResponse)
+          .timeout(uploadTimeout);
+
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
         return fromJson(jsonResponse);
@@ -306,47 +394,47 @@ class ApiService {
         var errorResponse = json.decode(response.body);
         throw Exception(errorResponse['message'] ?? 'Upload failed');
       }
+    } on TimeoutException {
+      throw Exception('Upload quá chậm, vui lòng thử lại');
+    } on SocketException catch (e) {
+      throw Exception('Lỗi kết nối mạng: ${e.message}');
     } catch (e) {
-      throw Exception('Network error: $e');
+      throw Exception('Lỗi upload: $e');
     }
   }
-  /// Gọi API GET
-  // Future<T> Get<T>(
-  //     String endpoint,
-  //     T Function(dynamic) parser,
-  //     ) =>
-  //     _get(endpoint, parser);
+
+  // ==================== PUBLIC API METHODS ====================
   Future<T> Get<T>(
       String endpoint,
       T Function(dynamic) parser, {
         Map<String, dynamic>? queryParams,
+        Duration? timeout,
       }) =>
-      _get(endpoint, parser, queryParams: queryParams);
+      _get(endpoint, parser, queryParams: queryParams, timeout: timeout);
 
-  /// Gọi API POST
   Future<T> Post<T>(
       String endpoint,
       dynamic data,
-      T Function(dynamic) parser,
-      ) =>
-      _post(endpoint, data, parser);
+      T Function(dynamic) parser, {
+        Duration? timeout,
+      }) =>
+      _post(endpoint, data, parser, timeout: timeout);
 
-  /// Gọi API PUT
   Future<T> Put<T>(
       String endpoint,
       dynamic data,
-      T Function(dynamic) parser,
-      ) =>
-      _put(endpoint, data, parser);
+      T Function(dynamic) parser, {
+        Duration? timeout,
+      }) =>
+      _put(endpoint, data, parser, timeout: timeout);
 
-  /// Gọi API DELETE
   Future<T> Delete<T>(
       String endpoint,
-      T Function(dynamic) parser,
-      ) =>
-      _delete(endpoint, parser);
+      T Function(dynamic) parser, {
+        Duration? timeout,
+      }) =>
+      _delete(endpoint, parser, timeout: timeout);
 
-  /// Gọi API UPLOADFILE
   Future<T> UploadFile<T>(
       String endpoint,
       File file,

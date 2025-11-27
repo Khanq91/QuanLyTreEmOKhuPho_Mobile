@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/screen/auth/quen_mat_khau_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth.dart';
 import '../../providers/phu_huynh.dart';
 import '../../providers/tinh_nguyen_vien.dart';
+import '../other/app_color.dart';
+import '../other/app_text.dart';
+import '../other/app_dimension.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -30,30 +34,31 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    // Thực hiện login
     final success = await authProvider.login(
       _emailController.text.trim(),
       _passwordController.text,
+      rememberMe: _rememberMe,
     );
 
     if (!mounted) return;
 
     if (success) {
-      // Load data tương ứng với role
       if (authProvider.vaiTro == 'Phụ huynh') {
         final phuHuynhProvider =
         Provider.of<PhuHuynhProvider>(context, listen: false);
         await phuHuynhProvider.loadDashboard();
-        // await phuHuynhProvider.loadThongBao();
 
         if (!mounted) return;
 
-        // Navigate đã được xử lý tự động bởi Consumer trong main.dart
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Chào mừng ${authProvider.hoTen}!'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.success,
             duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusMD),
+            ),
           ),
         );
       } else if (authProvider.vaiTro == 'Tình nguyện viên') {
@@ -67,8 +72,12 @@ class _LoginScreenState extends State<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Chào mừng ${authProvider.hoTen}!'),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.success,
               duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusMD),
+              ),
             ),
           );
         } catch (e) {
@@ -77,8 +86,12 @@ class _LoginScreenState extends State<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Đăng nhập thành công nhưng không thể tải dữ liệu: $e'),
-              backgroundColor: Colors.orange,
+              backgroundColor: AppColors.warning,
               duration: const Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusMD),
+              ),
             ),
           );
         }
@@ -88,11 +101,15 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authProvider.errorMessage ?? 'Đăng nhập thất bại'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
           duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusMD),
+          ),
           action: SnackBarAction(
             label: 'Đóng',
-            textColor: Colors.white,
+            textColor: AppColors.textOnPrimary,
             onPressed: () {
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
             },
@@ -106,10 +123,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: AppDimensions.paddingAll(AppDimensions.screenPaddingH),
             child: Form(
               key: _formKey,
               child: Column(
@@ -117,53 +135,94 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   // Logo
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: AppDimensions.paddingAll(AppDimensions.spacingLG),
                     decoration: BoxDecoration(
-                      color: Colors.blue[50],
+                      color: AppColors.primaryOverlay,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.child_care,
-                      size: 80,
-                      color: Colors.blue,
+                      size: AppDimensions.iconXXL + 16,
+                      color: AppColors.primary,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: AppDimensions.spacingXXL),
 
                   // Title
-                  const Text(
+                  Text(
                     'Quản lý Trẻ em Khu phố',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                    style: AppTextStyles.displayMedium.copyWith(
+                      color: AppColors.primary,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: AppDimensions.spacingXS),
                   Text(
                     'Đăng nhập để tiếp tục',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 48),
+                  SizedBox(height: AppDimensions.spacingXXXL),
 
                   // Email Field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
+                    style: AppTextStyles.bodyMedium,
                     decoration: InputDecoration(
                       labelText: 'Số điện thoại',
-                      prefixIcon: const Icon(Icons.email_outlined),
+                      labelStyle: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.email_outlined,
+                        color: AppColors.primary,
+                        size: AppDimensions.iconMD,
+                      ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+                        borderSide: BorderSide(
+                          color: AppColors.divider,
+                          width: AppDimensions.borderThin,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+                        borderSide: BorderSide(
+                          color: AppColors.divider,
+                          width: AppDimensions.borderThin,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+                        borderSide: BorderSide(
+                          color: AppColors.primary,
+                          width: AppDimensions.borderThick,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+                        borderSide: BorderSide(
+                          color: AppColors.error,
+                          width: AppDimensions.borderThin,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+                        borderSide: BorderSide(
+                          color: AppColors.error,
+                          width: AppDimensions.borderThick,
+                        ),
                       ),
                       filled: true,
-                      fillColor: Colors.grey[50],
+                      fillColor: AppColors.surface,
+                      contentPadding: AppDimensions.paddingSymmetric(
+                        horizontal: AppDimensions.spacingMD,
+                        vertical: AppDimensions.spacingMD,
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -176,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: AppDimensions.formFieldGap),
 
                   // Password Field
                   TextFormField(
@@ -184,24 +243,70 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: _obscurePassword,
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _login(),
+                    style: AppTextStyles.bodyMedium,
                     decoration: InputDecoration(
                       labelText: 'Mật khẩu',
-                      prefixIcon: const Icon(Icons.lock_outlined),
+                      labelStyle: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.lock_outlined,
+                        color: AppColors.primary,
+                        size: AppDimensions.iconMD,
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility_outlined
                               : Icons.visibility_off_outlined,
+                          color: AppColors.textSecondary,
+                          size: AppDimensions.iconMD,
                         ),
                         onPressed: () {
                           setState(() => _obscurePassword = !_obscurePassword);
                         },
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+                        borderSide: BorderSide(
+                          color: AppColors.divider,
+                          width: AppDimensions.borderThin,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+                        borderSide: BorderSide(
+                          color: AppColors.divider,
+                          width: AppDimensions.borderThin,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+                        borderSide: BorderSide(
+                          color: AppColors.primary,
+                          width: AppDimensions.borderThick,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+                        borderSide: BorderSide(
+                          color: AppColors.error,
+                          width: AppDimensions.borderThin,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: AppDimensions.radiusCircular(AppDimensions.inputRadius),
+                        borderSide: BorderSide(
+                          color: AppColors.error,
+                          width: AppDimensions.borderThick,
+                        ),
                       ),
                       filled: true,
-                      fillColor: Colors.grey[50],
+                      fillColor: AppColors.surface,
+                      contentPadding: AppDimensions.paddingSymmetric(
+                        horizontal: AppDimensions.spacingMD,
+                        vertical: AppDimensions.spacingMD,
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -213,7 +318,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: AppDimensions.spacingXS),
 
                   // Remember Me & Forgot Password
                   Row(
@@ -221,29 +326,59 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Row(
                         children: [
-                          Checkbox(
-                            value: _rememberMe,
-                            onChanged: (value) {
-                              setState(() => _rememberMe = value ?? false);
-                            },
-                          ),
-                          const Text('Ghi nhớ đăng nhập'),
+                          // Checkbox(
+                          //   value: _rememberMe,
+                          //   onChanged: (value) {
+                          //     setState(() => _rememberMe = value ?? false);
+                          //   },
+                          //   activeColor: AppColors.primary,
+                          //   shape: RoundedRectangleBorder(
+                          //     borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusXS),
+                          //   ),
+                          // ),
+                          // Text(
+                          //   'Ghi nhớ đăng nhập',
+                          //   style: AppTextStyles.bodySmall,
+                          // ),
                         ],
                       ),
                       TextButton(
                         onPressed: () {
                           // TODO: Implement forgot password
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Tính năng đang phát triển'),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ForgotPasswordScreen(),
                             ),
                           );
+                          // ScaffoldMessenger.of(context).showSnackBar(
+                          //   SnackBar(
+                          //     content: const Text('Tính năng đang phát triển'),
+                          //     backgroundColor: AppColors.info,
+                          //     behavior: SnackBarBehavior.floating,
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusMD),
+                          //     ),
+                          //   ),
+                          // );
                         },
-                        child: const Text('Quên mật khẩu?'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          padding: AppDimensions.paddingSymmetric(
+                            horizontal: AppDimensions.spacingMD,
+                            vertical: AppDimensions.spacingXS,
+                          ),
+                        ),
+                        child: Text(
+                          'Quên mật khẩu?',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: AppDimensions.spacingXL),
 
                   // Login Button
                   Consumer<AuthProvider>(
@@ -251,82 +386,112 @@ class _LoginScreenState extends State<LoginScreen> {
                       return ElevatedButton(
                         onPressed: auth.isLoading ? null : _login,
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.textOnPrimary,
+                          disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+                          padding: AppDimensions.paddingSymmetric(
+                            vertical: AppDimensions.buttonPaddingV + 4,
                           ),
-                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppDimensions.radiusCircular(AppDimensions.buttonRadius),
+                          ),
+                          elevation: AppDimensions.elevationSM,
+                          shadowColor: AppColors.primary.withOpacity(0.3),
                         ),
                         child: auth.isLoading
-                            ? const SizedBox(
-                          height: 20,
-                          width: 20,
+                            ? SizedBox(
+                          height: AppDimensions.iconSM,
+                          width: AppDimensions.iconSM,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white),
+                              AppColors.textOnPrimary,
+                            ),
                           ),
                         )
-                            : const Text(
+                            : Text(
                           'Đăng nhập',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTextStyles.button,
                         ),
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: AppDimensions.spacingXL),
 
-                  // Divider
-                  Row(
-                    children: [
-                      Expanded(child: Divider(color: Colors.grey[300])),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'hoặc',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ),
-                      Expanded(child: Divider(color: Colors.grey[300])),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
+                  // // Divider
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: Divider(
+                  //         color: AppColors.divider,
+                  //         thickness: AppDimensions.dividerThickness,
+                  //       ),
+                  //     ),
+                  //     Padding(
+                  //       padding: AppDimensions.paddingSymmetric(
+                  //         horizontal: AppDimensions.spacingMD,
+                  //       ),
+                  //       child: Text(
+                  //         'hoặc',
+                  //         style: AppTextStyles.bodySmall.copyWith(
+                  //           color: AppColors.textSecondary,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     Expanded(
+                  //       child: Divider(
+                  //         color: AppColors.divider,
+                  //         thickness: AppDimensions.dividerThickness,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // SizedBox(height: AppDimensions.spacingXL),
+                  //
+                  // // Register Button
+                  // OutlinedButton(
+                  //   onPressed: () {
+                  //     // TODO: Navigate to register screen
+                  //     ScaffoldMessenger.of(context).showSnackBar(
+                  //       SnackBar(
+                  //         content: const Text('Tính năng đăng ký đang phát triển'),
+                  //         backgroundColor: AppColors.info,
+                  //         behavior: SnackBarBehavior.floating,
+                  //         shape: RoundedRectangleBorder(
+                  //           borderRadius: AppDimensions.radiusCircular(AppDimensions.radiusMD),
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  //   style: OutlinedButton.styleFrom(
+                  //     foregroundColor: AppColors.primary,
+                  //     side: BorderSide(
+                  //       color: AppColors.primary,
+                  //       width: AppDimensions.borderMedium,
+                  //     ),
+                  //     padding: AppDimensions.paddingSymmetric(
+                  //       vertical: AppDimensions.buttonPaddingV + 4,
+                  //     ),
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: AppDimensions.radiusCircular(AppDimensions.buttonRadius),
+                  //     ),
+                  //   ),
+                  //   child: Text(
+                  //     'Tạo tài khoản mới',
+                  //     style: AppTextStyles.button.copyWith(
+                  //       color: AppColors.primary,
+                  //     ),
+                  //   ),
+                  // ),
 
-                  // Register Button
-                  OutlinedButton(
-                    onPressed: () {
-                      // TODO: Navigate to register screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Tính năng đăng ký đang phát triển'),
-                        ),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Tạo tài khoản mới',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: AppDimensions.spacingXL + AppDimensions.spacingXS),
+
                   // App Version
                   Text(
                     'Version 1.0.0',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 12,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textHint,
                     ),
                   ),
                 ],
