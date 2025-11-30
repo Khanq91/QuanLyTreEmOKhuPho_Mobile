@@ -175,8 +175,8 @@ class _LichSuHoatDongScreenState extends State<LichSuHoatDongScreen>
                   unselectedLabelStyle: AppTextStyles.labelMedium,
                   tabs: const [
                     Tab(text: 'Sự kiện'),
-                    Tab(text: 'Hỗ trợ PL'),
-                    Tab(text: 'Vận động'),
+                    Tab(text: 'Phát quà tặng'),
+                    Tab(text: 'Vận động trẻ'),
                   ],
                 ),
               ),

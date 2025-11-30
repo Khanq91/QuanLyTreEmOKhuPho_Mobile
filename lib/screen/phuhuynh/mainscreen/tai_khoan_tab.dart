@@ -449,6 +449,7 @@ class TabTaiKhoanScreen extends StatelessWidget {
         print("Kết thúc upload ảnh...");
       } catch (e) {
         Navigator.pop(context); // Close loading
+        print(e);
         showErrorDialog(context, 'Không thể tải ảnh lên. Vui lòng thử lại.');
       }
     }

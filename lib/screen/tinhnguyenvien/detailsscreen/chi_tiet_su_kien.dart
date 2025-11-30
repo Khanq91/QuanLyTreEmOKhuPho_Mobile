@@ -1,5 +1,7 @@
 // screens/tinh_nguyen_vien/event_detail_screen.dart
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -17,6 +19,7 @@ class EventDetailScreen extends StatefulWidget {
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
   bool _isExpanded = false;
+  static final String baseUrl = dotenv.env['BASE_URL']!;
 
   @override
   void initState() {
@@ -156,6 +159,75 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     );
   }
 
+  // Widget _buildAppBar(SuKienChiTietDto event) {
+  //   return SliverAppBar(
+  //     expandedHeight: 200,
+  //     pinned: true,
+  //     backgroundColor: const Color(0xFF00897B),
+  //     foregroundColor: Colors.white,
+  //     flexibleSpace: FlexibleSpaceBar(
+  //       title: Text(
+  //         event.tenSuKien,
+  //         style: const TextStyle(
+  //           fontWeight: FontWeight.bold,
+  //           fontSize: 16,
+  //         ),
+  //       ),
+  //       background: Container(
+  //         decoration: const BoxDecoration(
+  //           gradient: LinearGradient(
+  //             colors: [Color(0xFF00897B), Color(0xFF00695C)],
+  //             begin: Alignment.topLeft,
+  //             end: Alignment.bottomRight,
+  //           ),
+  //         ),
+  //         child: Stack(
+  //           children: [
+  //
+  //             if (event.anhSuKien != null && event.anhSuKien!.isNotEmpty)
+  //               Positioned.fill(
+  //                 child: CachedNetworkImage(
+  //                   imageUrl: '${baseUrl}${event.anhSuKien}',
+  //                   fit: BoxFit.cover,
+  //                   placeholder: (context, url) => Container(
+  //                     color: Colors.grey[300],
+  //                     child: const Center(child: CircularProgressIndicator()),
+  //                   ),
+  //                   errorWidget: (context, url, error) => const Icon(
+  //                       Icons.volunteer_activism,
+  //                       size: 80,
+  //                       color: Colors.white70
+  //                   ),
+  //                 ),
+  //               )
+  //             else
+  //               Positioned.fill(
+  //                 child: Opacity(
+  //                   opacity: 0.1,
+  //                   child: CustomPaint(painter: _PatternPainter()),
+  //                 ),
+  //               ),
+  //             Positioned.fill(
+  //               child: Opacity(
+  //                 opacity: 0.1,
+  //                 child: CustomPaint(painter: _PatternPainter()),
+  //               ),
+  //             ),
+  //             const Center(
+  //               child: Icon(Icons.volunteer_activism, size: 80, color: Colors.white70),
+  //             ),
+  //             if (event.daDangKy)
+  //               Positioned(
+  //                 top: 60,
+  //                 right: 16,
+  //                 child: _buildStatusBadge(event.trangThaiDangKy ?? ''),
+  //               ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget _buildAppBar(SuKienChiTietDto event) {
     return SliverAppBar(
       expandedHeight: 200,
@@ -168,6 +240,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
+            color:  Colors.white,
+            shadows: [
+              Shadow(
+                offset: Offset(0, 1),
+                blurRadius: 3.0,
+                color: Colors.black87,
+              ),
+            ],
           ),
         ),
         background: Container(
@@ -180,15 +260,64 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           ),
           child: Stack(
             children: [
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.1,
-                  child: CustomPaint(painter: _PatternPainter()),
+              // Hiển thị ảnh nếu có, nếu không thì hiển thị pattern + icon
+              if (event.anhSuKien != null && event.anhSuKien!.isNotEmpty)
+                Positioned.fill(
+                  child: CachedNetworkImage(
+                    imageUrl: '${baseUrl}${event.anhSuKien}',
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[300],
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Opacity(
+                            opacity: 0.1,
+                            child: CustomPaint(painter: _PatternPainter()),
+                          ),
+                        ),
+                        const Center(
+                          child: Icon(Icons.volunteer_activism, size: 80, color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+              // Hiển thị pattern và icon khi không có ảnh
+                ...[
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 0.1,
+                      child: CustomPaint(painter: _PatternPainter()),
+                    ),
+                  ),
+                  const Center(
+                    child: Icon(Icons.volunteer_activism, size: 80, color: Colors.white70),
+                  ),
+                ],
+
+              // Gradient overlay để text dễ đọc hơn (chỉ hiện khi có ảnh)
+              if (event.anhSuKien != null && event.anhSuKien!.isNotEmpty)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
+                        stops: const [0.5, 1.0],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              const Center(
-                child: Icon(Icons.volunteer_activism, size: 80, color: Colors.white70),
-              ),
+
+              // Badge trạng thái
               if (event.daDangKy)
                 Positioned(
                   top: 60,

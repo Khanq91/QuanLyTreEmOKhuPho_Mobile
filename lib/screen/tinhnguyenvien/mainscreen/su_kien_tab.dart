@@ -103,7 +103,7 @@ class _EventTabState extends State<EventTab>
         foregroundColor: AppColors.appBarText,
         elevation: AppDimensions.appBarElevation,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(100),
+          preferredSize: const Size.fromHeight(160),
           child: Column(
             children: [
               // Search bar

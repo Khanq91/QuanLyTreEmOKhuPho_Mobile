@@ -11,6 +11,7 @@ class SuKienListDto {
   final int soLuongTreEm;
   final String nguoiChiuTrachNhiem;
   final String tenKhuPho;
+  final String? anhSuKien;
   final int? dangKyId;
   final String? trangThaiDangKy; // "Đã duyệt", "Chờ duyệt", "Từ chối"
   final String? congViecPhanCong;
@@ -28,6 +29,7 @@ class SuKienListDto {
     required this.soLuongTreEm,
     required this.nguoiChiuTrachNhiem,
     required this.tenKhuPho,
+    this.anhSuKien,
     this.dangKyId,
     this.trangThaiDangKy,
     this.congViecPhanCong,
@@ -47,6 +49,7 @@ class SuKienListDto {
       soLuongTreEm: json['soLuongTreEm'] ?? 0,
       nguoiChiuTrachNhiem: json['nguoiChiuTrachNhiem'] ?? '',
       tenKhuPho: json['tenKhuPho'] ?? '',
+      anhSuKien: json['anhSuKien'],
       dangKyId: json['dangKyId'],
       trangThaiDangKy: json['trangThaiDangKy'],
       congViecPhanCong: json['congViecPhanCong'],
@@ -77,6 +80,7 @@ class SuKienChiTietDto {
   final String nguoiChiuTrachNhiem;
   final String tenKhuPho;
   final String diaChiKhuPho;
+  final String? anhSuKien;
   final int? dangKyId;
   final String? trangThaiDangKy;
   final DateTime? ngayDangKy;
@@ -98,6 +102,7 @@ class SuKienChiTietDto {
     required this.nguoiChiuTrachNhiem,
     required this.tenKhuPho,
     required this.diaChiKhuPho,
+    this.anhSuKien,
     this.dangKyId,
     this.trangThaiDangKy,
     this.ngayDangKy,
@@ -121,6 +126,7 @@ class SuKienChiTietDto {
       nguoiChiuTrachNhiem: json['nguoiChiuTrachNhiem'] ?? '',
       tenKhuPho: json['tenKhuPho'] ?? '',
       diaChiKhuPho: json['diaChiKhuPho'] ?? '',
+      anhSuKien: json['anhSuKien'],
       dangKyId: json['dangKyId'],
       trangThaiDangKy: json['trangThaiDangKy'],
       ngayDangKy: json['ngayDangKy'] != null ? DateTime.parse(json['ngayDangKy']) : null,

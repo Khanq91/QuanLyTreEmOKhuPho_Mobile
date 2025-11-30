@@ -583,7 +583,7 @@ class _ChiTietSuKienScreenState extends State<ChiTietSuKienScreen> {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                           ),
                           Text(
-                            '👤 ${tietMuc.nguoiThucHien}',
+                            '${tietMuc.nguoiThucHien}',
                             style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                           ),
                         ],
@@ -723,6 +723,7 @@ class _ChiTietSuKienScreenState extends State<ChiTietSuKienScreen> {
   }
 
   Widget _buildActionButton(ChiTietSuKienResponse suKien, bool isEnded) {
+    // Sự kiện đã kết thúc
     if (isEnded) {
       return SizedBox(
         width: double.infinity,
@@ -731,6 +732,7 @@ class _ChiTietSuKienScreenState extends State<ChiTietSuKienScreen> {
           onPressed: null,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey[300],
+            disabledBackgroundColor: Colors.grey[300],
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -743,8 +745,12 @@ class _ChiTietSuKienScreenState extends State<ChiTietSuKienScreen> {
       );
     }
 
+    // Đã đăng ký
     if (suKien.daDangKy) {
-      if (suKien.trangThaiDangKy.toLowerCase() == 'đã duyệt') {
+      final trangThai = suKien.trangThaiDangKy.toLowerCase();
+
+      // Chờ duyệt - Cho phép hủy
+      if (trangThai == 'chờ duyệt') {
         return SizedBox(
           width: double.infinity,
           height: 50,
@@ -761,7 +767,54 @@ class _ChiTietSuKienScreenState extends State<ChiTietSuKienScreen> {
             ),
           ),
         );
-      } else {
+      }
+
+      // Đã duyệt - Không thể hủy
+      else if (trangThai == 'đã duyệt') {
+        return SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton.icon(
+            onPressed: null,
+            icon: const Icon(Icons.block),
+            label: const Text('Không thể hủy', style: TextStyle(fontSize: 16)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[300],
+              disabledBackgroundColor: Colors.grey[300],
+              foregroundColor: Colors.grey[700],
+              disabledForegroundColor: Colors.grey[700],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        );
+      }
+
+      // Từ chối - Disabled
+      else if (trangThai == 'từ chối') {
+        return SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton.icon(
+            onPressed: null,
+            icon: const Icon(Icons.close),
+            label: const Text('Từ chối', style: TextStyle(fontSize: 16)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[100],
+              disabledBackgroundColor: Colors.red[100],
+              foregroundColor: Colors.red[700],
+              disabledForegroundColor: Colors.red[700],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        );
+      }
+
+      // Trạng thái khác (fallback)
+      else {
         return SizedBox(
           width: double.infinity,
           height: 50,
@@ -774,7 +827,9 @@ class _ChiTietSuKienScreenState extends State<ChiTietSuKienScreen> {
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber[100],
+              disabledBackgroundColor: Colors.amber[100],
               foregroundColor: Colors.amber[800],
+              disabledForegroundColor: Colors.amber[800],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -784,6 +839,7 @@ class _ChiTietSuKienScreenState extends State<ChiTietSuKienScreen> {
       }
     }
 
+    // Chưa đăng ký
     return SizedBox(
       width: double.infinity,
       height: 50,
