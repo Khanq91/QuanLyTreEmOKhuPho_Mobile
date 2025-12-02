@@ -206,6 +206,7 @@ class PhuHuynhProvider extends ChangeNotifier {
           nguoiChiuTrachNhiem: _chiTietSuKien!.nguoiChiuTrachNhiem,
           tenKhuPho: _chiTietSuKien!.tenKhuPho,
           diaChiKhuPho: _chiTietSuKien!.diaChiKhuPho,
+          anhSuKien: _chiTietSuKien!.anhSuKien,
           daDangKy: true,
           trangThaiDangKy: response.trangThai,
           danhSachChuongTrinh: _chiTietSuKien!.danhSachChuongTrinh,
@@ -256,6 +257,7 @@ class PhuHuynhProvider extends ChangeNotifier {
             nguoiChiuTrachNhiem: _chiTietSuKien!.nguoiChiuTrachNhiem,
             tenKhuPho: _chiTietSuKien!.tenKhuPho,
             diaChiKhuPho: _chiTietSuKien!.diaChiKhuPho,
+            anhSuKien: _chiTietSuKien!.anhSuKien,
             daDangKy: false,
             trangThaiDangKy: '',
             danhSachChuongTrinh: _chiTietSuKien!.danhSachChuongTrinh,
@@ -393,11 +395,40 @@ class PhuHuynhProvider extends ChangeNotifier {
   }
 
   // Upload ảnh phụ huynh cụ thể
-  Future<void> uploadAnhPhuHuynhCuThe(int phuHuynhId, File file) async {
-    await _service.uploadAnhPhuHuynhCuThe(phuHuynhId, file);
-    await loadDanhSachPhuHuynh(); // Reload list
-    await loadChiTietPhuHuynh(phuHuynhId); // Reload detail
+  // Future<void> uploadAnhPhuHuynhCuThe(int phuHuynhId, File file) async {
+  //   await _service.uploadAnhPhuHuynhCuThe(phuHuynhId, file);
+  //   await loadDanhSachPhuHuynh(); // Reload list
+  //   await loadChiTietPhuHuynh(phuHuynhId); // Reload detail
+  // }
+
+  // Upload ảnh phụ huynh cụ thể
+  Future<bool> uploadAnhPhuHuynhCuThe(int phuHuynhId, File file) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      print('Provider: Bắt đầu upload ảnh...');
+      await _service.uploadAnhPhuHuynhCuThe(phuHuynhId, file);
+
+      print('Provider: Upload thành công, reload dữ liệu...');
+      await loadDanhSachPhuHuynh();
+      await loadChiTietPhuHuynh(phuHuynhId);
+
+      return true;
+    } catch (e) {
+      final errorMsg = e.toString().replaceAll('Exception: ', '');
+      _errorMessage = errorMsg;
+      print('Provider: Lỗi upload - $errorMsg');
+      notifyListeners();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
+
+
   // Future<void> loadThongTinPhuHuynh() async {
   //   _isLoading = true;
   //   notifyListeners();

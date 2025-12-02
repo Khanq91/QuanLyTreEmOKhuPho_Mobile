@@ -127,9 +127,9 @@ class _ThongBaoScreenState extends State<ThongBaoScreen> {
         final filters = [
           {'label': 'Tất cả', 'value': 'TatCa', 'icon': Icons.all_inbox},
           {'label': 'Chưa đọc', 'value': 'ChuaDoc', 'icon': Icons.mark_email_unread},
-          {'label': 'Đã đọc', 'value': 'DaDoc', 'icon': Icons.check_circle_outline},
-          {'label': 'Sự kiện', 'value': 'SuKien', 'icon': Icons.event},
-          {'label': 'Vận động', 'value': 'VanDong', 'icon': Icons.directions_run},
+          // {'label': 'Đã đọc', 'value': 'DaDoc', 'icon': Icons.check_circle_outline},
+          // {'label': 'Sự kiện', 'value': 'SuKien', 'icon': Icons.event},
+          // {'label': 'Vận động', 'value': 'VanDong', 'icon': Icons.directions_run},
         ];
 
         return Container(

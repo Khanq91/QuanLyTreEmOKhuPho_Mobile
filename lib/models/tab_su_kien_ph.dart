@@ -94,6 +94,7 @@ class ChiTietSuKienResponse {
   final String nguoiChiuTrachNhiem;
   final String tenKhuPho;
   final String diaChiKhuPho;
+  final String? anhSuKien;
   final bool daDangKy;
   final String trangThaiDangKy;
   final List<ChuongTrinhSuKien> danhSachChuongTrinh;
@@ -110,6 +111,7 @@ class ChiTietSuKienResponse {
     required this.nguoiChiuTrachNhiem,
     required this.tenKhuPho,
     required this.diaChiKhuPho,
+    required this.anhSuKien,
     required this.daDangKy,
     required this.trangThaiDangKy,
     required this.danhSachChuongTrinh,
@@ -131,6 +133,7 @@ class ChiTietSuKienResponse {
       nguoiChiuTrachNhiem: json['nguoiChiuTrachNhiem'] ?? '',
       tenKhuPho: json['tenKhuPho'] ?? '',
       diaChiKhuPho: json['diaChiKhuPho'] ?? '',
+      anhSuKien: json['anhSuKien'],
       daDangKy: json['daDangKy'] ?? false,
       trangThaiDangKy: json['trangThaiDangKy'] ?? '',
       danhSachChuongTrinh: chuongTrinhs,

@@ -72,7 +72,9 @@ class UpdateProfileRequest {
       if (hoTen != null) 'hoTen': hoTen,
       if (sdt != null) 'sdt': sdt,
       if (email != null) 'email': email,
-      if (ngaySinh != null) 'ngaySinh': ngaySinh!.toIso8601String(),
+      // if (ngaySinh != null) 'ngaySinh': ngaySinh!.toIso8601String(),
+      if (ngaySinh != null)
+        'ngaySinh': ngaySinh!.toIso8601String().split('T')[0],
       if (khuPhoId != null) 'khuPhoId': khuPhoId,
       if (tenKhuPhoMoi != null) 'tenKhuPhoMoi': tenKhuPhoMoi,
       if (diaChiKhuPho != null) 'diaChiKhuPho': diaChiKhuPho,

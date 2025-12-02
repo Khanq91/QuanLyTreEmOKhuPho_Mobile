@@ -141,9 +141,50 @@ class ParentService extends ApiService {
   //   );
   // }
   // Upload ảnh phụ huynh cụ thể
+  // Future<String> uploadAnhPhuHuynhCuThe(int phuHuynhId, File file) async {
+  //   return UploadFile('/Mobile/PhuHuynh/UploadAnhPhuHuynh/$phuHuynhId', file,
+  //           (response) => response['filePath']);
+  // }
+  // Upload ảnh phụ huynh cụ thể
   Future<String> uploadAnhPhuHuynhCuThe(int phuHuynhId, File file) async {
-    return UploadFile('/Mobile/PhuHuynh/UploadAnhPhuHuynh/$phuHuynhId', file,
-            (response) => response['filePath']);
+    print('=== BẮT ĐẦU UPLOAD ẢNH PHỤ HUYNH ===');
+    print('Phụ huynh ID: $phuHuynhId');
+    print('File path: ${file.path}');
+
+    // Kiểm tra file
+    if (!await file.exists()) {
+      throw Exception('File không tồn tại');
+    }
+
+    final fileSize = await file.length();
+    print('File size: ${(fileSize / 1024).toStringAsFixed(2)} KB');
+
+    if (fileSize > 10 * 1024 * 1024) {
+      throw Exception('File quá lớn (tối đa 10MB)');
+    }
+
+    return UploadFile(
+        '/Mobile/PhuHuynh/UploadAnhPhuHuynh/$phuHuynhId',
+        file,
+            (response) {
+          print('Response data: $response');
+
+          if (response.containsKey('filePath')) {
+            return response['filePath'] as String;
+          } else if (response.containsKey('path')) {
+            return response['path'] as String;
+          } else if (response.containsKey('url')) {
+            return response['url'] as String;
+          } else if (response.containsKey('data') && response['data'] is Map) {
+            final data = response['data'] as Map<String, dynamic>;
+            if (data.containsKey('filePath')) {
+              return data['filePath'] as String;
+            }
+          }
+
+          throw Exception('Response không chứa đường dẫn file: $response');
+        }
+    );
   }
 
 

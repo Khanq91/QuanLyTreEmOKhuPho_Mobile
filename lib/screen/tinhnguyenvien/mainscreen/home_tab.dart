@@ -913,30 +913,35 @@ class _VolunteerHomeTabState extends State<VolunteerHomeTab> {
                   ),
                 ),
                 SizedBox(width: AppDimensions.spacingXS),
-                Text(
-                  'Lịch trống trong tuần',
-                  style: AppTextStyles.headingSmall,
-                ),
-                if (lichTrong.isEmpty) ...[
-                  SizedBox(width: AppDimensions.spacingXS),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppDimensions.spacingXS,
-                      vertical: 2,
+                Column(
+                  children: [
+                    Text(
+                      'Lịch trống trong tuần',
+                      style: AppTextStyles.headingSmall,
                     ),
-                    decoration: BoxDecoration(
-                      color: AppColors.error,
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusSM),
-                    ),
-                    child: Text(
-                      'Chưa cập nhật',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textOnPrimary,
-                        fontWeight: FontWeight.bold,
+                    if (lichTrong.isEmpty) ...[
+                      SizedBox(width: AppDimensions.spacingXS),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppDimensions.spacingXS,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.error,
+                          borderRadius: BorderRadius.circular(AppDimensions.radiusSM),
+                        ),
+                        child: Text(
+                          'Chưa cập nhật',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.textOnPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
+                    ],
+                  ],
+                ),
+                ///////////////////////////////////////////////
               ],
             ),
             TextButton(

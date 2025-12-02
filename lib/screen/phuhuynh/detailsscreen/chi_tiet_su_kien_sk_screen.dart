@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../models/tab_su_kien_ph.dart';
 import '../../../providers/phu_huynh.dart';
 
@@ -16,6 +17,7 @@ class ChiTietSuKienScreen extends StatefulWidget {
 
 class _ChiTietSuKienScreenState extends State<ChiTietSuKienScreen> {
   bool _isExpanded = false;
+  static final String baseUrl = dotenv.env['BASE_URL']!;
 
   @override
   void initState() {
@@ -220,6 +222,14 @@ class _ChiTietSuKienScreenState extends State<ChiTietSuKienScreen> {
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
+            color: Colors.white,
+            shadows: [
+              Shadow(
+                offset: Offset(0, 1),
+                blurRadius: 3.0,
+                color: Colors.black87,
+              ),
+            ],
           ),
         ),
         background: Container(
@@ -232,15 +242,64 @@ class _ChiTietSuKienScreenState extends State<ChiTietSuKienScreen> {
           ),
           child: Stack(
             children: [
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.1,
-                  child: CustomPaint(painter: _PatternPainter()),
+              // Hiển thị ảnh nếu có, nếu không thì hiển thị pattern + icon
+              if (suKien.anhSuKien != null && suKien.anhSuKien!.isNotEmpty)
+                Positioned.fill(
+                  child: CachedNetworkImage(
+                    imageUrl: '${baseUrl}${suKien.anhSuKien}',
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[300],
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Opacity(
+                            opacity: 0.1,
+                            child: CustomPaint(painter: _PatternPainter()),
+                          ),
+                        ),
+                        const Center(
+                          child: Icon(Icons.celebration, size: 80, color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+              // Hiển thị pattern và icon khi không có ảnh
+                ...[
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 0.1,
+                      child: CustomPaint(painter: _PatternPainter()),
+                    ),
+                  ),
+                  const Center(
+                    child: Icon(Icons.celebration, size: 80, color: Colors.white70),
+                  ),
+                ],
+
+              // Gradient overlay để text dễ đọc hơn (chỉ hiện khi có ảnh)
+              if (suKien.anhSuKien != null && suKien.anhSuKien!.isNotEmpty)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
+                        stops: const [0.5, 1.0],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              const Center(
-                child: Icon(Icons.celebration, size: 80, color: Colors.white70),
-              ),
+
+              // Badge trạng thái
               if (suKien.daDangKy)
                 Positioned(
                   top: 60,

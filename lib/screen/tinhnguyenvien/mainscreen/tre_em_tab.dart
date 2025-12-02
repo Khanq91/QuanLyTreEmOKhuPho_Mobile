@@ -21,6 +21,8 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
   late TabController _tabController;
   static final String baseUrl = dotenv.env['BASE_URL']!;
 
+  String _selectedFilter = 'Tất cả'; // 'Tất cả', 'Đã nhận', 'Đang tiến hành'
+
   @override
   void initState() {
     super.initState();
@@ -51,6 +53,29 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
         elevation: AppDimensions.elevationNone,
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.appBarText,
+        actions: [
+          // Nút reload
+          Consumer<VolunteerProvider>(
+            builder: (context, provider, _) {
+              return IconButton(
+                icon: provider.isLoading
+                    ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.textOnPrimary,
+                    ),
+                  ),
+                )
+                    : Icon(Icons.refresh),
+                onPressed: provider.isLoading ? null : _loadData,
+                tooltip: 'Tải lại dữ liệu',
+              );
+            },
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.textOnPrimary,
@@ -472,53 +497,237 @@ class _ChildrenTabState extends State<ChildrenTab> with SingleTickerProviderStat
   // ============ TAB TRẺ PHÂN PHÁT QUÀ ============
 
   Widget _buildTrePhanPhatQuaTab(VolunteerProvider provider) {
-    if (provider.trePhanPhatQua.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(AppDimensions.spacingXXL),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+    // Lọc dữ liệu theo filter
+    List<dynamic> filteredList = provider.trePhanPhatQua.where((tre) {
+      if (_selectedFilter == 'Tất cả') return true;
+      return tre.trangThai.toLowerCase() == _selectedFilter.toLowerCase();
+    }).toList();
+
+    return Column(
+      children: [
+        // Bộ lọc
+        Container(
+          padding: EdgeInsets.all(AppDimensions.spacingMD),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
             children: [
-              Container(
-                padding: EdgeInsets.all(AppDimensions.spacingXL),
-                decoration: BoxDecoration(
-                  color: AppColors.accentOverlay,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.card_giftcard,
-                  size: AppDimensions.iconXXL,
-                  color: AppColors.accent,
-                ),
+              Icon(
+                Icons.filter_list,
+                size: AppDimensions.iconSM,
+                color: AppColors.textSecondary,
               ),
-              SizedBox(height: AppDimensions.spacingXL),
+              SizedBox(width: AppDimensions.spacingSM),
               Text(
-                'Chưa có trẻ được phân công',
-                style: AppTextStyles.headingLarge.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              SizedBox(height: AppDimensions.spacingXS),
-              Text(
-                'Bạn sẽ nhận được thông báo khi được phân công phát quà',
+                'Lọc theo:',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textHint,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
                 ),
-                textAlign: TextAlign.center,
+              ),
+              SizedBox(width: AppDimensions.spacingSM),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildFilterChip(
+                        label: 'Tất cả',
+                        count: provider.trePhanPhatQua.length,
+                        icon: Icons.apps,
+                        color: AppColors.primary,
+                      ),
+                      SizedBox(width: AppDimensions.spacingXS),
+                      _buildFilterChip(
+                        label: 'Đã nhận',
+                        count: provider.trePhanPhatQua
+                            .where((tre) => tre.trangThai.toLowerCase() == 'đã nhận')
+                            .length,
+                        icon: Icons.check_circle,
+                        color: AppColors.success,
+                      ),
+                      SizedBox(width: AppDimensions.spacingXS),
+                      _buildFilterChip(
+                        label: 'Đang tiến hành',
+                        count: provider.trePhanPhatQua
+                            .where((tre) => tre.trangThai.toLowerCase() == 'đang tiến hành')
+                            .length,
+                        icon: Icons.pending,
+                        color: AppColors.info,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
         ),
-      );
+
+        // Danh sách
+        Expanded(
+          child: filteredList.isEmpty
+              ? _buildEmptyState()
+              : RefreshIndicator(
+            onRefresh: _loadData,
+            color: AppColors.primary,
+            child: ListView.builder(
+              padding: EdgeInsets.all(AppDimensions.spacingMD),
+              itemCount: filteredList.length,
+              itemBuilder: (context, index) {
+                final tre = filteredList[index];
+                return _buildTrePhanPhatQuaCard(tre);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    required int count,
+    required IconData icon,
+    required Color color,
+  }) {
+    final isSelected = _selectedFilter == label;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedFilter = label;
+          });
+        },
+        borderRadius: BorderRadius.circular(AppDimensions.chipRadius),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppDimensions.spacingMD,
+            vertical: AppDimensions.spacingSM,
+          ),
+          decoration: BoxDecoration(
+            color: isSelected ? color : color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(AppDimensions.chipRadius),
+            border: Border.all(
+              color: isSelected ? color : color.withOpacity(0.3),
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected ? Colors.white : color,
+              ),
+              SizedBox(width: 6),
+              Text(
+                label,
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: isSelected ? Colors.white : color,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                ),
+              ),
+              SizedBox(width: 4),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.white.withOpacity(0.3)
+                      : color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '$count',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: isSelected ? Colors.white : color,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    String message;
+    IconData icon;
+    Color iconColor;
+
+    switch (_selectedFilter) {
+      case 'Đã nhận':
+        message = 'Chưa có trẻ nào đã nhận quà';
+        icon = Icons.check_circle_outline;
+        iconColor = AppColors.success;
+        break;
+      case 'Đang tiến hành':
+        message = 'Chưa có trẻ nào đang trong quá trình nhận quà';
+        icon = Icons.pending_outlined;
+        iconColor = AppColors.info;
+        break;
+      default:
+        message = 'Chưa có trẻ được phân công';
+        icon = Icons.card_giftcard;
+        iconColor = AppColors.accent;
     }
 
-    return ListView.builder(
-      padding: EdgeInsets.all(AppDimensions.spacingMD),
-      itemCount: provider.trePhanPhatQua.length,
-      itemBuilder: (context, index) {
-        final tre = provider.trePhanPhatQua[index];
-        return _buildTrePhanPhatQuaCard(tre);
-      },
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(AppDimensions.spacingXXL),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(AppDimensions.spacingXL),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: AppDimensions.iconXXL,
+                color: iconColor,
+              ),
+            ),
+            SizedBox(height: AppDimensions.spacingXL),
+            Text(
+              message,
+              style: AppTextStyles.headingLarge.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: AppDimensions.spacingXS),
+            Text(
+              _selectedFilter == 'Tất cả'
+                  ? 'Bạn sẽ nhận được thông báo khi được phân công phát quà'
+                  : 'Thử chọn bộ lọc khác để xem danh sách',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textHint,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 

@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 class ApiService {
   static final String baseUrl = "${dotenv.env['BASE_URL']!}/api";
@@ -358,27 +360,85 @@ class ApiService {
     }
   }
 
-  // ==================== UPLOAD FILE WITH TIMEOUT ====================
+  // Future<T> _uploadFile<T>(
+  //     String endpoint,
+  //     File file,
+  //     T Function(Map<String, dynamic>) fromJson,
+  //     ) async {
+  //   try {
+  //     var uri = Uri.parse('$baseUrl$endpoint');
+  //     var request = http.MultipartRequest('POST', uri);
+  //
+  //     if (_authToken != null) {
+  //       request.headers['Authorization'] = 'Bearer $_authToken';
+  //     }
+  //
+  //     var multipartFile = await http.MultipartFile.fromPath(
+  //       'file',
+  //       file.path,
+  //     );
+  //     request.files.add(multipartFile);
+  //
+  //     // Gửi request với timeout
+  //     var streamedResponse = await request
+  //         .send()
+  //         .timeout(uploadTimeout);
+  //
+  //     var response = await http.Response
+  //         .fromStream(streamedResponse)
+  //         .timeout(uploadTimeout);
+  //
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = json.decode(response.body);
+  //       return fromJson(jsonResponse);
+  //     } else {
+  //       var errorResponse = json.decode(response.body);
+  //       throw Exception(errorResponse['message'] ?? 'Upload failed');
+  //     }
+  //   } on TimeoutException {
+  //     throw Exception('Upload quá chậm, vui lòng thử lại');
+  //   } on SocketException catch (e) {
+  //     throw Exception('Lỗi kết nối mạng: ${e.message}');
+  //   } catch (e) {
+  //     throw Exception('Lỗi upload: $e');
+  //   }
+  // }
+
   Future<T> _uploadFile<T>(
       String endpoint,
       File file,
       T Function(Map<String, dynamic>) fromJson,
       ) async {
     try {
+      print('Upload File Request: $baseUrl$endpoint');
+      print('File path: ${file.path}');
+      print('File size: ${await file.length()} bytes');
+
       var uri = Uri.parse('$baseUrl$endpoint');
       var request = http.MultipartRequest('POST', uri);
 
+      if (_authToken == null) {
+        _authToken = await getAuthToken();
+      }
+
       if (_authToken != null) {
         request.headers['Authorization'] = 'Bearer $_authToken';
+        print('Using auth token');
       }
+
+      final mimeType = lookupMimeType(file.path) ?? 'image/jpeg';
+      final mimeTypeSplit = mimeType.split('/');
 
       var multipartFile = await http.MultipartFile.fromPath(
         'file',
         file.path,
+        contentType: MediaType(mimeTypeSplit[0], mimeTypeSplit[1]),
       );
       request.files.add(multipartFile);
 
-      // Gửi request với timeout
+      print('File content-type: $mimeType');
+      print('Sending upload request...');
+
       var streamedResponse = await request
           .send()
           .timeout(uploadTimeout);
@@ -387,18 +447,40 @@ class ApiService {
           .fromStream(streamedResponse)
           .timeout(uploadTimeout);
 
-      if (response.statusCode == 200) {
-        var jsonResponse = json.decode(response.body);
-        return fromJson(jsonResponse);
+      print('Upload Response Status: ${response.statusCode}');
+      print('Upload Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        try {
+          var jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+          print('Upload thành công!');
+          return fromJson(jsonResponse);
+        } catch (e) {
+          print('Lỗi parse JSON response: $e');
+          throw Exception('Lỗi xử lý dữ liệu phản hồi: $e');
+        }
       } else {
-        var errorResponse = json.decode(response.body);
-        throw Exception(errorResponse['message'] ?? 'Upload failed');
+        try {
+          var errorResponse = json.decode(response.body);
+          String errorMsg = errorResponse['message'] ??
+              errorResponse['error'] ??
+              errorResponse['title'] ??
+              'Upload failed with status ${response.statusCode}';
+          print('Upload thất bại: $errorMsg');
+          throw Exception(errorMsg);
+        } catch (e) {
+          print('Upload thất bại: ${response.body}');
+          throw Exception('Upload failed: ${response.statusCode} - ${response.body}');
+        }
       }
     } on TimeoutException {
+      print('Upload timeout sau ${uploadTimeout.inSeconds}s');
       throw Exception('Upload quá chậm, vui lòng thử lại');
     } on SocketException catch (e) {
+      print('Lỗi kết nối mạng: ${e.message}');
       throw Exception('Lỗi kết nối mạng: ${e.message}');
     } catch (e) {
+      print('Lỗi upload: $e');
       throw Exception('Lỗi upload: $e');
     }
   }

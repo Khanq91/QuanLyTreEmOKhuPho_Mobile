@@ -5,7 +5,7 @@ import '../models/tab_su_kien_tnv.dart';
 import '../models/tab_tai_khoan_tnv.dart';
 import '../models/tab_thong_bao_tnv.dart';
 import '../models/tab_tre_em_tnv.dart';
-import 'api.dart';
+import 'api.dart';import 'package:http/http.dart' as http;
 
 class VolunteerService extends ApiService {
 
@@ -199,6 +199,52 @@ class VolunteerService extends ApiService {
 
   // ============ CẬP NHẬT VẬN ĐỘNG ============
 
+  // Future<Map<String, dynamic>> capNhatVanDong({
+  //   required int treEmId,
+  //   required int hoanCanhId,
+  //   required String tinhTrangCapNhat,
+  //   required int soLan,
+  //   String? ghiChuChiTiet,
+  //   File? anhMinhChung,
+  // }) async {
+  //   try {
+  //     // Tạo request data
+  //     final data = {
+  //       'treEmID': treEmId,
+  //       'hoanCanhID': hoanCanhId,
+  //       'tinhTrangCapNhat': tinhTrangCapNhat,
+  //       'soLan': soLan,
+  //       'ghiChuChiTiet': ghiChuChiTiet ?? '',
+  //     };
+  //
+  //     print('=== BẮT ĐẦU CẬP NHẬT VẬN ĐỘNG ===');
+  //     print('Data: $data');
+  //     print('File path: ${anhMinhChung?.path}');
+  //     print('File exists: ${anhMinhChung?.existsSync()}');
+  //     print('File size: ${await anhMinhChung?.length()} bytes');
+  //
+  //     if (anhMinhChung != null) {
+  //       // Upload với file
+  //       return UploadFile(
+  //         '/Mobile/TinhNguyenVien/CapNhatVanDong',
+  //         anhMinhChung,
+  //             (response) => response,
+  //       );
+  //     } else {
+  //       // Post thông thường (không có ảnh)
+  //       return Post(
+  //         '/Mobile/TinhNguyenVien/CapNhatVanDong',
+  //         data,
+  //             (response) => response,
+  //       );
+  //     }
+  //   } catch (e, stackTrace) {
+  //     print('LỖI CẬP NHẬT VẬN ĐỘNG ===');
+  //     print('Error: $e');
+  //     print('StackTrace: $stackTrace');
+  //     rethrow;
+  //   }
+  // }
   Future<Map<String, dynamic>> capNhatVanDong({
     required int treEmId,
     required int hoanCanhId,
@@ -207,29 +253,64 @@ class VolunteerService extends ApiService {
     String? ghiChuChiTiet,
     File? anhMinhChung,
   }) async {
-    // Tạo request data
-    final data = {
-      'treEmID': treEmId,
-      'hoanCanhID': hoanCanhId,
-      'tinhTrangCapNhat': tinhTrangCapNhat,
-      'soLan': soLan,
-      'ghiChuChiTiet': ghiChuChiTiet ?? '',
-    };
+    try {
+      print('=== BẮT ĐẦU CẬP NHẬT VẬN ĐỘNG ===');
+      print('treEmID: $treEmId');
+      print('hoanCanhID: $hoanCanhId');
+      print('tinhTrangCapNhat: $tinhTrangCapNhat');
+      print('soLan: $soLan');
+      print('ghiChuChiTiet: $ghiChuChiTiet');
+      print('File path: ${anhMinhChung?.path}');
 
-    if (anhMinhChung != null) {
-      // Upload với file
-      return UploadFile(
-        '/Mobile/TinhNguyenVien/CapNhatVanDong',
-        anhMinhChung,
-            (response) => response,
-      );
-    } else {
-      // Post thông thường (không có ảnh)
-      return Post(
-        '/Mobile/TinhNguyenVien/CapNhatVanDong',
-        data,
-            (response) => response,
-      );
+      var uri = Uri.parse('${ApiService.baseUrl}/Mobile/TinhNguyenVien/CapNhatVanDong');
+      var request = http.MultipartRequest('POST', uri);
+
+      // Thêm Authorization header
+      final token = await getAuthToken();
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      // Thêm các fields theo đúng tên trong DTO
+      request.fields['TreEmID'] = treEmId.toString();
+      request.fields['HoanCanhID'] = hoanCanhId.toString();
+      request.fields['TinhTrangCapNhat'] = tinhTrangCapNhat;
+      request.fields['SoLan'] = soLan.toString();
+      if (ghiChuChiTiet != null && ghiChuChiTiet.isNotEmpty) {
+        request.fields['GhiChuChiTiet'] = ghiChuChiTiet;
+      }
+
+      // Thêm file nếu có
+      if (anhMinhChung != null) {
+        var multipartFile = await http.MultipartFile.fromPath(
+          'file', // Key phải là 'file' như trong controller
+          anhMinhChung.path,
+        );
+        request.files.add(multipartFile);
+        print('Đã thêm file: ${multipartFile.filename}');
+      }
+
+      print('Gửi request đến: $uri');
+
+      // Gửi request
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var jsonResponse = json.decode(response.body);
+        return jsonResponse;
+      } else {
+        var errorResponse = json.decode(response.body);
+        throw Exception(errorResponse['message'] ?? 'Cập nhật thất bại');
+      }
+    } catch (e, stackTrace) {
+      print('LỖI CẬP NHẬT VẬN ĐỘNG ===');
+      print('Error: $e');
+      print('StackTrace: $stackTrace');
+      rethrow;
     }
   }
 
